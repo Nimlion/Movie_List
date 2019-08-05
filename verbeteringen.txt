@@ -1,0 +1,13 @@
+- Datum van wanneer hij is gekeken.
+- Zoek functie.
+- thema aanpassen naar logo.
+- Darkmodus?
+- Bij elke wijziging de lijst saven.
+- Sorteren fixen.
+- Input validation (geen spaties en langer 2 chars).
+- Laatste van de lijst bug.
+- Splash screen.
+- on start up vragen wat de gebruiker wilt (preferences).
+- startup versnellen
+
+prefs.setAsString maar dan json decoded elke object
