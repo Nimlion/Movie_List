@@ -1,13 +1,36 @@
 - Datum van wanneer hij is gekeken.
-- Zoek functie.
 - thema aanpassen naar logo.
-- Darkmodus?
-- Bij elke wijziging de lijst saven.
-- Sorteren fixen.
 - Input validation (geen spaties en langer 2 chars).
-- Laatste van de lijst bug.
-- Splash screen.
-- on start up vragen wat de gebruiker wilt (preferences).
-- startup versnellen
+- Sorteren fixen.
+- favorieten bug word niet onthouden/ gekoppeld.
+- Verwijderen in favorietenlijst bug (index van _movieItems word gepakt).
+- Checken of de titel al bestaat anders notificatie.
+- Bij elke wijziging de lijst saven.
+- Bij elke wijziging de lijst orderen.
+- Favorietenlijst bug dat hij niet kan updaten (niet stateful).
+- Favorite lijst moet kunnen updaten. (hot reload of scaffold naar materialapp).
+- Veranderen naar nette classes.
 
-prefs.setAsString maar dan json decoded elke object
+- Comments vervangen.
+- datum format wijzigen naar voorbeeld: 8 aug. 2019.
+- Long press -> film titel wijzigen.
+- Laatste van de lijst bug:
+- Tabs onderin: movielist, watchlist en favorites.
+- Menu icon top right voor settings.
+- Splash screen.
+- On start up vragen wat de gebruiker wilt (preferences).
+- Darkmodus?
+- text size?
+- Zoek functie. ->
+https://stackoverflow.com/questions/50892584/searching-a-list-of-objects-for-a-particular-object-in-dart-using-where
+
+- Rating geven aan de film
+- Watchlist
+
+- Startup versnellen
+- _saveFavoriteMovie & _removeFavoriteMovie zijn dubbel.
+
+BUG SITES:
+https://flutter.dev/docs/development/data-and-backend/state-mgmt/simple
+https://stackoverflow.com/questions/48844804/flutter-setstate-not-updating-inner-stateful-widget
+https://stackoverflow.com/questions/51931017/update-ui-after-removing-items-from-list

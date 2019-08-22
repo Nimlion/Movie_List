@@ -1,11 +1,23 @@
-// Import MaterialApp and other widgets which we can use to quickly create a material app
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:overlay_support/overlay_support.dart';
 import 'dart:convert';
 
+import 'package:overlay_support/overlay_support.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:to_do/models/movie.dart';
+import 'package:to_do/models/repository.dart';
+import 'package:to_do/screens/addmovie.dart';
+import 'package:to_do/screens/favorite.dart';
+
+/*
+* Everything what has to do with the favorite movies of the user can be found here.
+* programmer: Hosam Darwish
+*/
+
+// Run a new app
 void main() => runApp(new MovieListApp());
 
+// Create a new app
 class MovieListApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -20,6 +32,7 @@ class MovieListApp extends StatelessWidget {
   }
 }
 
+// Create a new state that listens to the users actions
 class MovieList extends StatefulWidget {
   MovieList({Key key, this.title}) : super(key: key);
   final String title;
@@ -28,248 +41,43 @@ class MovieList extends StatefulWidget {
   createState() => new MovieState();
 }
 
-class Movie {
-  String _title;
-  DateTime _addedDate;
-
-  Movie(DateTime date, String name) {
-    this._addedDate = date;
-    this._title = name;
-  }
-
-  factory Movie.fromJson(Map<String, dynamic> json) {
-    return new Movie(DateTime.parse(json['date']), json['title']);
-  }
-
-  toJson() {
-    return {
-      'title': _title,
-      'date': _addedDate.toString(),
-    };
-  }
-
-  String getName() {
-    return this._title;
-  }
-
-  DateTime getDate() {
-    return this._addedDate;
-  }
-}
-
+// Start new State for the movie page
 class MovieState extends State<MovieList> {
-  final _normalFont = 14.0;
-  List<Movie> _movieItems = [];
-  List<Movie> _saved = [];
-  final String movieKey = 'list';
-  final String favoriteKey = 'saved';
-
   @override
   void initState() {
     _loadList();
 
-    for (Movie film in _movieItems) {
-      print(film.getName() + ", " + film.getDate().toLocal().toString());
-    }
-
-    _movieItems.sort((a, b) {
-      return a.getName().compareTo(b.getName());
-    });
-
-    print("\n \nGesorteerd: \n \n \n");
-
-    for (Movie film in _movieItems) {
-      print(film.getName() + ", " + film.getDate().toLocal().toString());
-    }
-
     super.initState();
   }
 
-  // Loading counter value on start
+  // Loading all the movie lists on startup
   _loadList() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+
     setState(() {
-      if (prefs.getString(movieKey) != null) {
+      // Loop over all the added movies and add them to the List of movies
+      if (prefs.getString(Repo.movieKey) != null) {
         json
-            .decode(prefs.getString(movieKey))
-            .forEach((map) => _movieItems.add(Movie.fromJson(map)));
+            .decode(prefs.getString(Repo.movieKey))
+            .forEach((map) => Repo.movieItems.add(Movie.fromJson(map)));
       }
 
-      if (prefs.getString(favoriteKey) != null) {
+      // Loop over all the favorited movies and add them to the List of favorite movies
+      if (prefs.getString(Repo.favoriteKey) != null) {
         json
-            .decode(prefs.getString(favoriteKey))
-            .forEach((map) => _saved.add(new Movie.fromJson(map)));
+            .decode(prefs.getString(Repo.favoriteKey))
+            .forEach((map) => Repo.saved.add(Movie.fromJson(map)));
       }
 
-      print("saved:" + _saved.toString());
-      print("movies:" + _movieItems.toString());
+      // Sort the saved list alphabetically
+      Movie.sortListAlphabetically(Repo.saved);
+
+      // Sort the movie list alphabetically
+      Movie.sortListAlphabetically(Repo.movieItems);
     });
   }
 
-  void _addMovie(String task) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    // Only add the task if the user actually entered something
-    if (task.length > 2 && task.trim() != "") {
-      // Putting our code inside "setState" tells the app that our state has changed, and
-      // it will automatically re-render the list
-      setState(() {
-        Movie toAddMovie = new Movie(DateTime.now(), task);
-        _movieItems.add(toAddMovie);
-        prefs.setString(movieKey, jsonEncode(_movieItems));
-      });
-    } else {
-      showSimpleNotification(
-        Text("Please enter a correct name."),
-        background: Colors.purple,
-      );
-    }
-  }
-
-  void _saveFavoriteMovie(Movie favMovie) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final bool alreadySaved = _saved.contains(favMovie.getName());
-
-    setState(() {
-      if (alreadySaved) {
-        _saved.remove(favMovie);
-        prefs.setString(favoriteKey, json.encode(_saved));
-      } else {
-        _saved.add(favMovie);
-        prefs.setString(favoriteKey, jsonEncode(_saved));
-      }
-    });
-  }
-
-  void _removeFavoriteMovie(Movie badMovie) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    setState(() {
-      _saved.remove(badMovie);
-      prefs.setString(favoriteKey, json.encode(_saved));
-    });
-  }
-
-  void _removeMovieFromList(int index) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    setState(() {
-      Movie movieText = _movieItems.elementAt(index);
-
-      _removeFavoriteMovie(movieText);
-      prefs.setString(favoriteKey, json.encode(_saved));
-      _movieItems.removeAt(index);
-      prefs.setString(movieKey, json.encode(_movieItems));
-    });
-  }
-
-  void _promptRemoveMovie(int index) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return new AlertDialog(
-              title: new Text('Delete "${_movieItems[index]}" ?'),
-              actions: <Widget>[
-                new FlatButton(
-                    child: new Text('Cancel'),
-                    // The alert is actually part of the navigation stack, so to close it, we
-                    // need to pop it.
-                    onPressed: () => Navigator.of(context).pop()),
-                new FlatButton(
-                    child: new Text('Delete'),
-                    onPressed: () {
-                      _removeMovieFromList(index);
-                      Navigator.of(context).pop();
-                    })
-              ]);
-        });
-  }
-
-  // Build the whole list of todo items
-  Widget _buildMovieList() {
-    return new ListView.builder(
-      itemBuilder: (context, index) {
-        // itemBuilder will be automatically be called as many times as it takes for the
-        // list to fill up its available space, which is most likely more than the
-        // number of todo items we have. So, we need to check the index is OK.
-        if (index < _movieItems.length) {
-          return _buildMovieItem(_movieItems[index], index);
-        }
-      },
-    );
-  }
-
-  // Build the whole list of todo items
-  Widget _buildFavoritesList() {
-    if (_saved.length == 0) {
-      return new Center(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text("U currently have 0 favorites",
-              style: new TextStyle(
-                fontSize: _normalFont,
-              ))
-        ],
-      ));
-    } else {
-      return new ListView.builder(
-        itemBuilder: (context, index) {
-          // itemBuilder will be automatically be called as many times as it takes for the
-          // list to fill up its available space, which is most likely more than the
-          // number of movie items we have. So, we need to check the index is OK.
-          if (index < _saved.length) {
-            return _buildFavoriteItem(_saved[index].getName(), index);
-          }
-        },
-      );
-    }
-  }
-
-  // Build a single todo item
-  Widget _buildMovieItem(Movie movie, int index) {
-    final bool alreadySaved = _saved.contains(movie.getName());
-    return new ListTile(
-      leading: Icon(Icons.movie),
-      title: new Text(
-        movie.getName(),
-        style: TextStyle(fontFamily: 'Raleway', fontSize: 14),
-      ),
-      subtitle: new Text(movie.getDate().toString()),
-      trailing: IconButton(
-          icon: new Icon(
-            alreadySaved ? Icons.favorite : Icons.favorite_border,
-            color: alreadySaved ? Colors.red : null,
-          ),
-          onPressed: () {
-            _saveFavoriteMovie(movie);
-          }),
-      onTap: () => _promptRemoveMovie(index),
-      dense: false,
-    );
-  }
-
-  // Build a single favorite movie
-  Widget _buildFavoriteItem(String todoText, int index) {
-    final bool alreadySaved = _saved.contains(todoText);
-    return new ListTile(
-      leading: Icon(Icons.movie),
-      title: new Text(
-        todoText,
-        style: TextStyle(fontFamily: 'Raleway', fontSize: 14),
-      ),
-      trailing: IconButton(
-          icon: new Icon(
-            alreadySaved ? Icons.favorite : Icons.favorite_border,
-            color: alreadySaved ? Colors.red : null,
-          ),
-          onPressed: () {
-            _saveFavoriteMovie(todoText);
-          }),
-      onTap: () => _promptRemoveMovie(index),
-      dense: false,
-    );
-  }
-
+  // Build the homepage including appbar and list of watched movies
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -287,40 +95,132 @@ class MovieState extends State<MovieList> {
     );
   }
 
-  void _pushSaved() {
-    // Push this page onto the stack
-    Navigator.of(context).push(
-        // MaterialPageRoute will automatically animate the screen entry, as well as adding
-        // a back button to close it
-        new MaterialPageRoute(builder: (context) {
-      return new Scaffold(
-        appBar: new AppBar(
-          title: new Text('My Favorites'),
-        ),
-        body: _buildFavoritesList(),
-      );
-    }));
+  // Remove a movie from the list of watched movies
+  void _removeMovieFromList(int index) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Remove the movie from the favorite list and from the watched list and rerender the list
+    setState(() {
+      Movie movieText = Repo.movieItems.elementAt(index);
+
+      _removeFavoriteMovie(movieText);
+      prefs.setString(Repo.favoriteKey, json.encode(Repo.saved));
+      Repo.movieItems.removeAt(index);
+      prefs.setString(Repo.movieKey, json.encode(Repo.movieItems));
+    });
   }
 
+  // Show a prompt to the user to confirm he wants to delete a movie he watched
+  void _promptRemoveMovie(int index) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return new AlertDialog(
+              title:
+                  new Text('Delete ${Repo.movieItems[index].getTitle()} ?'),
+              actions: <Widget>[
+                new FlatButton(
+                    child: new Text('Cancel'),
+                    // The alert is actually part of the navigation stack, so to close it, we
+                    // need to pop it.
+                    onPressed: () => Navigator.of(context).pop()),
+                new FlatButton(
+                    child: new Text('Delete'),
+                    onPressed: () {
+                      _removeMovieFromList(index);
+                      Navigator.of(context).pop();
+                    })
+              ]);
+        });
+  }
+
+  // Build the entire list of watched movies
+  Widget _buildMovieList() {
+    return new ListView.builder(
+      itemBuilder: (context, index) {
+        // itemBuilder will be automatically be called as many times as it takes for the
+        // list to fill up its available space, which is most likely more than the
+        // number of watched movie the user has. So, we need to check the index is OK.
+        if (index < Repo.movieItems.length) {
+          return _buildMovieItem(Repo.movieItems[index], index);
+        }
+      },
+    );
+  }
+
+  // Build a single movie item
+  Widget _buildMovieItem(Movie movie, int index) {
+    // check if the movie is saved
+    final bool alreadySaved = Repo.saved.contains(movie);
+
+    // Create a listtile with icon, title, date and wether the movie is saved or not
+    return new ListTile(
+      leading: Icon(Icons.movie),
+      title: new Text(
+        movie.getTitle(),
+        style: TextStyle(
+            fontFamily: 'Raleway',
+            fontSize: Repo.normalFont,
+            color: Colors.deepOrange),
+      ),
+      subtitle:
+          new Text(DateFormat('dd-MM-yyyy').format(movie.getDate()).toString()),
+      trailing: IconButton(
+          icon: new Icon(
+            alreadySaved ? Icons.favorite : Icons.favorite_border,
+            color: alreadySaved ? Colors.red : null,
+          ),
+          onPressed: () {
+            _saveFavoriteMovie(movie);
+          }),
+      onTap: () => _promptRemoveMovie(index),
+      dense: false,
+    );
+  }
+
+  // Send the user to the add movie screen
   void _pushAddMovieScreen() {
     // Push this page onto the stack
     Navigator.of(context).push(
-        // MaterialPageRoute will automatically animate the screen entry, as well as adding
-        // a back button to close it
-        new MaterialPageRoute(builder: (context) {
-      return new Scaffold(
-          appBar: new AppBar(title: new Text('Add a new movie')),
-          body: new TextField(
-            autofocus: true,
-            textCapitalization: TextCapitalization.words,
-            onSubmitted: (val) {
-              _addMovie(val);
-              Navigator.pop(context); // Close the add todo screen
-            },
-            decoration: new InputDecoration(
-                hintText: 'Enter the movie\'s name',
-                contentPadding: const EdgeInsets.all(16.0)),
-          ));
-    }));
+      new MaterialPageRoute(builder: (context) => AddScreen()),
+    );
+  }
+
+  // Send the user to the saved movies screen
+  void _pushSaved() {
+    // Push this page onto the stack
+    Navigator.of(context).push(
+      new MaterialPageRoute(builder: (context) => FavoriteScreen()),
+    );
+  }
+
+  // Remove a movie from the favorite list
+  void _removeFavoriteMovie(Movie badMovie) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Remove and rerender the favorite list
+    setState(() {
+      Repo.saved.remove(badMovie);
+      prefs.setString(Repo.favoriteKey, json.encode(Repo.saved));
+    });
+  }
+
+  // Save or remove a movie from the favorite list
+  void _saveFavoriteMovie(Movie favMovie) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final bool alreadySaved = Repo.saved.contains(favMovie);
+
+    setState(() {
+      // If the movie is not in the favorite list yet, add the movie. Else remove the movie from the favorite list
+      if (alreadySaved) {
+        Repo.saved.remove(favMovie);
+      } else {
+        Repo.saved.add(favMovie);
+      }
+      prefs.setString(Repo.favoriteKey, jsonEncode(Repo.saved));
+    });
+
+    // Sort the favorite list
+    Movie.sortListAlphabetically(Repo.saved);
   }
 }

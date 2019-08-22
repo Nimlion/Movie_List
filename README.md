@@ -1,6 +1,6 @@
-# to_do
+# movie list
 
-A new Flutter project.
+My first native IOS and android mobile application.
 
 ## Getting Started
 

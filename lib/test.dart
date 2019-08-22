@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'dart:convert';
+import 'package:intl/intl.dart';
 
 void main() => runApp(new MovieListApp());
 
@@ -37,6 +38,16 @@ class Movie {
     this._title = name;
   }
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Movie &&
+          runtimeType == other.runtimeType &&
+          _title == other._title;
+
+  @override
+  int get hashCode => _title.hashCode;
+
   factory Movie.fromJson(Map<String, dynamic> json) {
     return new Movie(DateTime.parse(json['date']), json['title']);
   }
@@ -48,7 +59,7 @@ class Movie {
     };
   }
 
-  String getName() {
+  String getTitle() {
     return this._title;
   }
 
@@ -67,18 +78,15 @@ class MovieState extends State<MovieList> {
   @override
   void initState() {
     _loadList();
-    _movieItems.sort((a, b) {
-      return a.getName().compareTo(b.getName());
-    });
+
     super.initState();
   }
 
   // Loading counter value on start
   _loadList() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _saved = (prefs.getString(favoriteKey) ?? []);
 
+    setState(() {
       if (prefs.getString(movieKey) != null) {
         json
             .decode(prefs.getString(movieKey))
@@ -88,25 +96,63 @@ class MovieState extends State<MovieList> {
       if (prefs.getString(favoriteKey) != null) {
         json
             .decode(prefs.getString(favoriteKey))
-            .forEach((map) => _saved.add(new Movie.fromJson(map)));
+            .forEach((map) => _saved.add(Movie.fromJson(map)));
       }
 
-      print(_saved);
-      print(_movieItems);
+      // print("saved: ");
+      // for (Movie film in _saved) {
+      //   print("titel: " +
+      //       film.getTitle() +
+      //       " datum: " +
+      //       film.getDate().toString());
+      // }
+      // print("movies: " + _movieItems.toString());
+
+      sortListAlphabetically();
     });
   }
 
-  void _addMovie(String task) async {
+  void sortListAlphabetically() async {
+    _movieItems.sort((a, b) {
+      return a.getTitle().compareTo(b.getTitle());
+    });
+  }
+
+  void sortListByLatest() async {
+    _movieItems.sort((a, b) {
+      return a.getDate().compareTo(b.getDate());
+    });
+  }
+
+  bool movieDoesExist(String movie) {
+    for (Movie object in _movieItems) {
+      if (object.getTitle().toLowerCase() == movie) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  void _addMovie(String newMovie) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     // Only add the task if the user actually entered something
-    if (task.length > 2 && task.trim() != "") {
-      // Putting our code inside "setState" tells the app that our state has changed, and
-      // it will automatically re-render the list
-      setState(() {
-        Movie toAddMovie = new Movie(DateTime.now(), task);
-        _movieItems.add(toAddMovie);
-        prefs.setString(movieKey, jsonEncode(_movieItems));
-      });
+    // and if the movie doesn't already exist
+    if (newMovie.length > 1 && newMovie.trim() != "") {
+      if (movieDoesExist(newMovie.toLowerCase()) == true) {
+        showSimpleNotification(
+          Text("This movie already exists."),
+          background: Colors.purple,
+        );
+      } else {
+        // Putting our code inside "setState" tells the app that our state has changed, and
+        // it will automatically re-render the list
+        setState(() {
+          Movie toAddMovie = new Movie(DateTime.now(), newMovie);
+          _movieItems.add(toAddMovie);
+          prefs.setString(movieKey, jsonEncode(_movieItems));
+          sortListAlphabetically();
+        });
+      }
     } else {
       showSimpleNotification(
         Text("Please enter a correct name."),
@@ -117,16 +163,15 @@ class MovieState extends State<MovieList> {
 
   void _saveFavoriteMovie(Movie favMovie) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final bool alreadySaved = _saved.contains(favMovie.getName());
+    final bool alreadySaved = _saved.contains(favMovie);
 
     setState(() {
       if (alreadySaved) {
         _saved.remove(favMovie);
-        prefs.setString(favoriteKey, json.encode(_saved));
       } else {
         _saved.add(favMovie);
-        prefs.setString(favoriteKey, jsonEncode(_saved));
       }
+      prefs.setString(favoriteKey, jsonEncode(_saved));
     });
   }
 
@@ -136,6 +181,20 @@ class MovieState extends State<MovieList> {
     setState(() {
       _saved.remove(badMovie);
       prefs.setString(favoriteKey, json.encode(_saved));
+    });
+  }
+
+  void _removeFromSavedMovieList(int index) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      Movie film = _saved.elementAt(index);
+      int movieIndex = _movieItems.indexOf(film);
+
+      _removeFavoriteMovie(film);
+      prefs.setString(favoriteKey, json.encode(_saved));
+      _movieItems.removeAt(movieIndex);
+      prefs.setString(movieKey, json.encode(_movieItems));
     });
   }
 
@@ -157,7 +216,7 @@ class MovieState extends State<MovieList> {
         context: context,
         builder: (BuildContext context) {
           return new AlertDialog(
-              title: new Text('Delete "${_movieItems[index]}" ?'),
+              title: new Text('Delete "${_movieItems[index].getTitle()}" ?'),
               actions: <Widget>[
                 new FlatButton(
                     child: new Text('Cancel'),
@@ -168,6 +227,28 @@ class MovieState extends State<MovieList> {
                     child: new Text('Delete'),
                     onPressed: () {
                       _removeMovieFromList(index);
+                      Navigator.of(context).pop();
+                    })
+              ]);
+        });
+  }
+
+  void _promptRemoveFavoriteMovie(int index) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return new AlertDialog(
+              title: new Text('Delete "${_saved[index].getTitle()}" ?'),
+              actions: <Widget>[
+                new FlatButton(
+                    child: new Text('Cancel'),
+                    // The alert is actually part of the navigation stack, so to close it, we
+                    // need to pop it.
+                    onPressed: () => Navigator.of(context).pop()),
+                new FlatButton(
+                    child: new Text('Delete'),
+                    onPressed: () {
+                      _removeFromSavedMovieList(index);
                       Navigator.of(context).pop();
                     })
               ]);
@@ -208,7 +289,7 @@ class MovieState extends State<MovieList> {
           // list to fill up its available space, which is most likely more than the
           // number of movie items we have. So, we need to check the index is OK.
           if (index < _saved.length) {
-            return _buildFavoriteItem(_saved[index].getName(), index);
+            return _buildFavoriteItem(_saved[index], index);
           }
         },
       );
@@ -217,14 +298,21 @@ class MovieState extends State<MovieList> {
 
   // Build a single todo item
   Widget _buildMovieItem(Movie movie, int index) {
-    final bool alreadySaved = _saved.contains(movie.getName());
+    final bool alreadySaved = _saved.contains(movie);
+
+    // final bool alreadySaved = (indexOfMovie == -1) ? true : false;
+
     return new ListTile(
       leading: Icon(Icons.movie),
       title: new Text(
-        movie.getName(),
-        style: TextStyle(fontFamily: 'Raleway', fontSize: 14),
+        movie.getTitle(),
+        style: TextStyle(
+            fontFamily: 'Raleway',
+            fontSize: _normalFont,
+            color: Colors.deepOrange),
       ),
-      subtitle: new Text(movie.getDate().toString()),
+      subtitle:
+          new Text(DateFormat('dd-MM-yyyy').format(movie.getDate()).toString()),
       trailing: IconButton(
           icon: new Icon(
             alreadySaved ? Icons.favorite : Icons.favorite_border,
@@ -239,13 +327,14 @@ class MovieState extends State<MovieList> {
   }
 
   // Build a single favorite movie
-  Widget _buildFavoriteItem(String todoText, int index) {
-    final bool alreadySaved = _saved.contains(todoText);
+  Widget _buildFavoriteItem(Movie movie, int index) {
+    final bool alreadySaved = _saved.contains(movie);
+
     return new ListTile(
       leading: Icon(Icons.movie),
       title: new Text(
-        todoText,
-        style: TextStyle(fontFamily: 'Raleway', fontSize: 14),
+        movie.getTitle(),
+        style: TextStyle(fontFamily: 'Raleway', fontSize: _normalFont),
       ),
       trailing: IconButton(
           icon: new Icon(
@@ -253,9 +342,9 @@ class MovieState extends State<MovieList> {
             color: alreadySaved ? Colors.red : null,
           ),
           onPressed: () {
-            _saveFavoriteMovie(todoText);
+            _saveFavoriteMovie(movie);
           }),
-      onTap: () => _promptRemoveMovie(index),
+      onTap: () => _promptRemoveFavoriteMovie(index),
       dense: false,
     );
   }
