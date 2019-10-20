@@ -10,25 +10,41 @@
 - Favorietenlijst bug dat hij niet kan updaten (niet stateful).
 - Favorite lijst moet kunnen updaten. (hot reload of scaffold naar materialapp).
 - Veranderen naar nette classes.
-
 - Comments vervangen.
 - datum format wijzigen naar voorbeeld: 8 aug. 2019.
-- Long press -> film titel wijzigen.
+- short press -> film titel wijzigen & long press is verwijderen.
 - Laatste van de lijst bug:
-- Tabs onderin: movielist, watchlist en favorites.
-- Menu icon top right voor settings.
-- Splash screen.
-- On start up vragen wat de gebruiker wilt (preferences).
-- Darkmodus?
-- text size?
-- Zoek functie. ->
-https://stackoverflow.com/questions/50892584/searching-a-list-of-objects-for-a-particular-object-in-dart-using-where
+  Tabs onderin: add, search, sort.
+  Menu icon top right voor settings.
+  Tabs bovenin: home, favorite, watchlist
+- Watchlist maken met bottombar + lijst(icon, title en date) + add functie.
+- Watchlater: checkbox rechts als hij true is dan word movie toegevoegd aan saved + prefs.
+- Settings drawer met text size en grote text met background.
+- Watchlist ombouwen naar watchlist met checkmark of hij al is bekeken.
 
+
+- Probleem met van watchlater naar home en andersom?
+
+- Bij de eerste keer dat de gebruiker de app heeft een welkoms verhaal vertellen.
+- (vragen / zetten bij de eerste keer) -> On start up vragen wat de gebruiker wilt (preferences). 
+- Zoek functie. ->  
+  https://medium.com/flutterpub/a-simple-search-bar-in-flutter-f99aed68f523
+  https://stackoverflow.com/questions/50892584/searching-a-list-of-objects-for-a-particular-object-in-dart-using-where
+  (een movie pagina maken?)
+- Naam: Filmani / movie gems/ movieMarks
+- IOS Splash screen + tekst op splash screen?
+- Vertical align icon in listtiles.
+
+- UnitTests
 - Rating geven aan de film
-- Watchlist
+- Type meegeven aan een film
+- Probleem van watchlist als je een oude film wilt toevoegen.
+- Watchlist check bij add of datum verder is dan vandaag .isAfter().
+- Watchlist checken bij het bouwen van de watchlist of elke van de list niet al voorbij is.
+
 
 - Startup versnellen
-- _saveFavoriteMovie & _removeFavoriteMovie zijn dubbel.
+- _saveFavoriteMovie, _pushAddMovieScreen, _removeFavoriteMovie zijn dubbel.
 
 BUG SITES:
 https://flutter.dev/docs/development/data-and-backend/state-mgmt/simple

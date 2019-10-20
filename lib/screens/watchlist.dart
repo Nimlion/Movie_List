@@ -1,27 +1,28 @@
 import 'dart:convert';
 
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:to_do/models/movie.dart';
 import 'package:to_do/models/repository.dart';
+import 'package:to_do/screens/addtowatchlist.dart';
 import 'package:unicorndial/unicorndial.dart';
-import 'package:to_do/screens/addmovie.dart';
 
 /*
-* Everything what has to do with the favorite movies of the user can be found here.
+* Everything what has to do with the future movies of the user can be found here.
 * programmer: Hosam Darwish
 */
-class FavoriteScreen extends StatefulWidget {
+class WatchlistScreen extends StatefulWidget {
   @override
-  _FavoriteState createState() => _FavoriteState();
+  _WatchlistState createState() => _WatchlistState();
 }
 
-class _FavoriteState extends State<FavoriteScreen> {
-  // Create the favorite screen
+class _WatchlistState extends State<WatchlistScreen> {
+  // Create the watch later screen
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _buildFavoritesList(),
+      body: _buildWatchList(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Padding(
         padding: EdgeInsets.fromLTRB(0, 0, 0, 12.0),
@@ -38,7 +39,7 @@ class _FavoriteState extends State<FavoriteScreen> {
               child: Icon(Icons.sort_by_alpha),
               onPressed: () {
                 setState(() {
-                  Movie.sortListAlphabetically(Repo.saved);
+                  Movie.sortListAlphabetically(Repo.future);
                 });
               },
             )),
@@ -49,7 +50,7 @@ class _FavoriteState extends State<FavoriteScreen> {
               child: Icon(Icons.date_range),
               onPressed: () {
                 setState(() {
-                  Movie.sortListByLatest(Repo.saved);
+                  Movie.sortListByEarliest(Repo.future);
                 });
               },
             )),
@@ -67,35 +68,23 @@ class _FavoriteState extends State<FavoriteScreen> {
                 },
                 icon: new Icon(Icons.add, size: 30),
                 label: new Text("Add", style: TextStyle(fontSize: 16))),
-            FlatButton.icon(
-                onPressed: () {},
-                icon: new Icon(Icons.search, size: 30),
-                label: new Text("Search", style: TextStyle(fontSize: 16))),
           ],
         ),
       ),
     );
   }
 
-  // Send the user to the add movie screen
-  void _pushAddMovieScreen() {
-    // Push this page onto the stack
-    Navigator.of(context).push(
-      new MaterialPageRoute(builder: (context) => AddScreen()),
-    );
-  }
-
-  // Build the whole list of favorite movies
-  Widget _buildFavoritesList() {
-    if (Repo.saved.length == 0) {
+  // Build the whole list of watch later movies
+  Widget _buildWatchList() {
+    if (Repo.future.length == 0) {
       return new Center(
           child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Text("U currently have 0 favorites.",
+          Text("U currently have 0 movies in your watchlist.",
               textAlign: TextAlign.center,
               style: new TextStyle(
-                  fontSize: Repo.largerFont,
+                  fontSize: Repo.currentFont + 2.0,
                   textBaseline: TextBaseline.alphabetic))
         ],
       ));
@@ -105,58 +94,64 @@ class _FavoriteState extends State<FavoriteScreen> {
           // itemBuilder will be automatically be called as many times as it takes for the
           // list to fill up its available space, which is most likely more than the
           // number of movie items we have. So, we need to check the index is OK.
-          if (index < Repo.saved.length) {
-            return _buildFavoriteItem(Repo.saved[index], index);
+          if (index < Repo.future.length) {
+            return _buildWatchItem(Repo.future[index], index);
           }
         },
       );
     }
   }
 
-  // Build a single favorite movie for within a list
-  Widget _buildFavoriteItem(Movie movie, int index) {
-    final bool alreadySaved = Repo.saved.contains(movie);
+  // Send the user to the add movie screen
+  void _pushAddMovieScreen() {
+    // Push this page onto the stack
+    Navigator.of(context).push(
+      new MaterialPageRoute(builder: (context) => AddWatchlistScreen()),
+    );
+  }
 
+  // Build a single watch later movie for within a list
+  Widget _buildWatchItem(Movie movie, int index) {
     return new ListTile(
-      leading: IconButton(
-        icon: new Icon(
-          alreadySaved ? Icons.favorite : Icons.favorite_border,
-          color: alreadySaved ? Colors.red : null,
-        ),
-        onPressed: () => setState(() {
-          _saveFavoriteMovie(movie);
-        }),
-        padding: EdgeInsets.all(0),
-      ),
+      leading: Icon(Icons.watch_later),
       title: new Text(
         movie.getTitle(),
         style: TextStyle(
             fontFamily: 'Raleway',
             fontSize: Repo.currentFont,
-            color: Color(0xFFb5525c),
-            fontStyle: FontStyle.italic,
-            letterSpacing: 1),
+            color: Colors.purple,
+            letterSpacing: 1.5),
       ),
+      subtitle: new Text(DateFormat('d MMM. yyyy')
+          .format(movie.getDate())
+          .toString()
+          .toLowerCase()),
       dense: false,
+      trailing: Checkbox(
+        value: false,
+        onChanged: (bool checked) {
+          // Als hij true is dan word de movie toegevoegd aan saved + prefs en verwijderd van de watchlist (maar alleen als hij is toegevoegd (try with resources)).
+          sendToWatched(index, movie);
+        },
+      ),
     );
   }
 
-  // Save or remove a movie from the favorite list
-  void _saveFavoriteMovie(Movie favMovie) async {
+// Send the movie to the watched list and remove from the watchlater list
+  void sendToWatched(int index, Movie newMovie) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final bool alreadySaved = Repo.saved.contains(favMovie);
 
     setState(() {
-      // If the movie is not in the favorite list yet, add the movie. Else remove the movie from the favorite list
-      if (alreadySaved) {
-        Repo.saved.remove(favMovie);
-      } else {
-        Repo.saved.add(favMovie);
-      }
-      prefs.setString(Repo.favoriteKey, jsonEncode(Repo.saved));
-    });
+      try {
+        Repo.watched.add(newMovie);
+        prefs.setString(Repo.movieKey, jsonEncode(Repo.watched));
+        // Sort the list again
+        Movie.sortListAlphabetically(Repo.watched);
+        // Remove from the watchlist
+        Repo.future.removeAt(index);
+      } catch (e) {
 
-    // Sort the favorite list
-    Movie.sortListAlphabetically(Repo.saved);
+      }
+    });
   }
 }

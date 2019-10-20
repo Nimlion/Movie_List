@@ -50,9 +50,14 @@ class Movie {
     return this._addedDate;
   }
 
+  // Set the date of the movie
+  void setTitle(String newTitle) {
+    this._title = newTitle;
+  }
+
   // Check if the movie already exists in the list of movies
   static bool movieDoesExist(String movie) {
-    for (Movie object in Repo.movieItems) {
+    for (Movie object in Repo.watched) {
       if (object.getTitle().toLowerCase() == movie) {
         return true;
       }
@@ -69,6 +74,13 @@ class Movie {
 
   // Sort a list of movies by the latest date
   static void sortListByLatest(List<Movie> lijst) async {
+    lijst.sort((a, b) {
+      return b.getDate().compareTo(a.getDate());
+    });
+  }
+
+  // Sort a list of movies by the latest date
+  static void sortListByEarliest(List<Movie> lijst) async {
     lijst.sort((a, b) {
       return a.getDate().compareTo(b.getDate());
     });

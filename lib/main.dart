@@ -7,10 +7,14 @@ import 'package:intl/intl.dart';
 import 'package:to_do/models/movie.dart';
 import 'package:to_do/models/repository.dart';
 import 'package:to_do/screens/addmovie.dart';
+import 'package:to_do/screens/editmovie.dart';
 import 'package:to_do/screens/favorite.dart';
+import 'package:to_do/screens/settings.dart';
+import 'package:to_do/screens/watchlist.dart';
+import 'package:unicorndial/unicorndial.dart';
 
 /*
-* Everything what has to do with the favorite movies of the user can be found here.
+* Everything what has to do with the watched movies of the user can be found here.
 * programmer: Hosam Darwish
 */
 
@@ -27,8 +31,14 @@ class MovieListApp extends StatelessWidget {
             theme: ThemeData(
                 primarySwatch: Colors.deepOrange,
                 primaryColor: Colors.deepPurple,
-                fontFamily: 'Raleway'),
-            home: new MovieList()));
+                brightness: Brightness.light,
+                fontFamily: 'Alexandria'),
+            darkTheme: ThemeData(
+              primarySwatch: Colors.deepOrange,
+              primaryColor: Colors.black,
+              brightness: Brightness.dark,
+            ),
+            home: DefaultTabController(length: 3, child: new MovieList())));
   }
 }
 
@@ -45,13 +55,13 @@ class MovieList extends StatefulWidget {
 class MovieState extends State<MovieList> {
   @override
   void initState() {
-    _loadList();
+    _loadPrefs();
 
     super.initState();
   }
 
   // Loading all the movie lists on startup
-  _loadList() async {
+  _loadPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     setState(() {
@@ -59,7 +69,7 @@ class MovieState extends State<MovieList> {
       if (prefs.getString(Repo.movieKey) != null) {
         json
             .decode(prefs.getString(Repo.movieKey))
-            .forEach((map) => Repo.movieItems.add(Movie.fromJson(map)));
+            .forEach((map) => Repo.watched.add(Movie.fromJson(map)));
       }
 
       // Loop over all the favorited movies and add them to the List of favorite movies
@@ -69,29 +79,167 @@ class MovieState extends State<MovieList> {
             .forEach((map) => Repo.saved.add(Movie.fromJson(map)));
       }
 
+      // Loop over all the favorited movies and add them to the List of favorite movies
+      if (prefs.getString(Repo.futureKey) != null) {
+        json
+            .decode(prefs.getString(Repo.futureKey))
+            .forEach((map) => Repo.future.add(Movie.fromJson(map)));
+      }
+
       // Sort the saved list alphabetically
-      Movie.sortListAlphabetically(Repo.saved);
+      Movie.sortListByEarliest(Repo.future);
+
+      // Sort the saved list alphabetically
+      Movie.sortListByLatest(Repo.saved);
 
       // Sort the movie list alphabetically
-      Movie.sortListAlphabetically(Repo.movieItems);
+      Movie.sortListAlphabetically(Repo.watched);
     });
   }
 
   // Build the homepage including appbar and list of watched movies
   @override
   Widget build(BuildContext context) {
+    var brightness = MediaQuery.of(context).platformBrightness;
+
     return Scaffold(
       appBar: new AppBar(
-        title: new Text('My Movie List'),
-        actions: <Widget>[
-          IconButton(icon: Icon(Icons.list), onPressed: _pushSaved),
-        ],
+        title: new Text(
+          'Movie Gems',
+          style: TextStyle(fontFamily: 'MotionPicture', fontSize: 35.0),
+        ),
+        centerTitle: true,
+        bottom: TabBar(
+          tabs: [
+            Tab(icon: Icon(Icons.home)),
+            Tab(icon: Icon(Icons.favorite)),
+            Tab(icon: Icon(Icons.watch_later)),
+          ],
+        ),
       ),
-      body: _buildMovieList(),
-      floatingActionButton: new FloatingActionButton(
-          onPressed: _pushAddMovieScreen,
-          tooltip: 'Add movie',
-          child: new Icon(Icons.add)),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(0, 30, 0, 0),
+                child: Text('Settings',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontFamily: 'MotionPicture',
+                        fontSize: 35.0,
+                        color: Colors.white)),
+              ),
+              decoration: BoxDecoration(
+                color: Colors.deepPurple,
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(15, 10, 0, 10),
+              child: Text(
+                "Fontsize:",
+                style: TextStyle(
+                    fontSize: Repo.currentFont + 6,
+                    fontWeight: FontWeight.bold,
+                    color: brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.deepPurple),
+              ),
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.local_florist,
+                color: brightness == Brightness.dark
+                    ? Colors.white
+                    : Colors.deepPurple,
+              ),
+              title: Text(
+                'Grandma Fontsize',
+                style: TextStyle(fontSize: Repo.currentFont,
+                    color: Repo.currentFont == Repo.largerFont
+                        ? Colors.deepPurple
+                        : Colors.black,
+                        fontWeight: FontWeight.bold),
+              ),
+              onTap: () {
+                setState(() {
+                  Repo.currentFont = Repo.largerFont;
+                });
+              },
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.local_pizza,
+                color: brightness == Brightness.dark
+                    ? Colors.white
+                    : Colors.deepPurple,
+              ),
+              title: Text(
+                'Fat Fontsize',
+                style: TextStyle(
+                    fontSize: Repo.currentFont,
+                    color: Repo.currentFont == Repo.largeFont
+                        ? Colors.deepPurple
+                        : Colors.black,
+                        fontWeight: FontWeight.bold),
+              ),
+              onTap: () {
+                setState(() {
+                  Repo.currentFont = Repo.largeFont;
+                });
+              },
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.offline_bolt,
+                color: brightness == Brightness.dark
+                    ? Colors.white
+                    : Colors.deepPurple,
+              ),
+              title: Text(
+                'Boring Fontsize',
+                style: TextStyle(fontSize: Repo.currentFont,
+                    color: Repo.currentFont == Repo.normalFont
+                        ? Colors.deepPurple
+                        : Colors.black,
+                        fontWeight: FontWeight.bold),
+              ),
+              onTap: () {
+                setState(() {
+                  Repo.currentFont = Repo.normalFont;
+                });
+              },
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.search,
+                color: brightness == Brightness.dark
+                    ? Colors.white
+                    : Colors.deepPurple,
+              ),
+              title: Text(
+                'Asian Fontsize',
+                style: TextStyle(fontSize: Repo.currentFont,
+                    color: Repo.currentFont == Repo.smallFont
+                        ? Colors.deepPurple
+                        : Colors.black,
+                        fontWeight: FontWeight.bold),
+              ),
+              onTap: () {
+                setState(() {
+                  Repo.currentFont = Repo.smallFont;
+                });
+              },
+            ),
+          ],
+        ),
+      ),
+      body: TabBarView(children: [
+        _buildMovieList(),
+        FavoriteScreen(),
+        WatchlistScreen(),
+      ]),
     );
   }
 
@@ -101,13 +249,35 @@ class MovieState extends State<MovieList> {
 
     // Remove the movie from the favorite list and from the watched list and rerender the list
     setState(() {
-      Movie movieText = Repo.movieItems.elementAt(index);
+      Movie shitMovie = Repo.watched.elementAt(index);
 
-      _removeFavoriteMovie(movieText);
+      Repo.saved.remove(shitMovie);
       prefs.setString(Repo.favoriteKey, json.encode(Repo.saved));
-      Repo.movieItems.removeAt(index);
-      prefs.setString(Repo.movieKey, json.encode(Repo.movieItems));
+      Repo.watched.removeAt(index);
+      prefs.setString(Repo.movieKey, json.encode(Repo.watched));
     });
+  }
+
+  void _promptEditMovie(int index) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return new AlertDialog(
+              title: new Text('Edit ${Repo.watched[index].getTitle()} ?'),
+              actions: <Widget>[
+                new FlatButton(
+                    child: new Text('Cancel'),
+                    // The alert is actually part of the navigation stack, so to close it, we
+                    // need to pop it.
+                    onPressed: () => Navigator.of(context).pop()),
+                new FlatButton(
+                    child: new Text('Edit'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      _pushEditScreen(index);
+                    })
+              ]);
+        });
   }
 
   // Show a prompt to the user to confirm he wants to delete a movie he watched
@@ -116,8 +286,7 @@ class MovieState extends State<MovieList> {
         context: context,
         builder: (BuildContext context) {
           return new AlertDialog(
-              title:
-                  new Text('Delete ${Repo.movieItems[index].getTitle()} ?'),
+              title: new Text('Delete ${Repo.watched[index].getTitle()} ?'),
               actions: <Widget>[
                 new FlatButton(
                     child: new Text('Cancel'),
@@ -136,15 +305,72 @@ class MovieState extends State<MovieList> {
 
   // Build the entire list of watched movies
   Widget _buildMovieList() {
-    return new ListView.builder(
-      itemBuilder: (context, index) {
-        // itemBuilder will be automatically be called as many times as it takes for the
-        // list to fill up its available space, which is most likely more than the
-        // number of watched movie the user has. So, we need to check the index is OK.
-        if (index < Repo.movieItems.length) {
-          return _buildMovieItem(Repo.movieItems[index], index);
-        }
-      },
+    return new Scaffold(
+      body: ListView.builder(
+        itemBuilder: (context, index) {
+          // itemBuilder will be automatically be called as many times as it takes for the
+          // list to fill up its available space, which is most likely more than the
+          // number of watched movie the user has. So, we need to check the index is OK.
+          if (index < Repo.watched.length) {
+            return _buildMovieItem(Repo.watched[index], index);
+          }
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: Padding(
+        padding: EdgeInsets.fromLTRB(0, 0, 0, 12.0),
+        child: UnicornDialer(
+          parentHeroTag: 'homeFAB',
+          hasBackground: false,
+          orientation: UnicornOrientation.VERTICAL,
+          parentButton: Icon(Icons.sort),
+          childButtons: <UnicornButton>[
+            UnicornButton(
+                currentButton: FloatingActionButton(
+              heroTag: 'homeAZFAB',
+              mini: true,
+              child: Icon(Icons.sort_by_alpha),
+              onPressed: () {
+                setState(() {
+                  Movie.sortListAlphabetically(Repo.watched);
+                });
+              },
+            )),
+            UnicornButton(
+                currentButton: FloatingActionButton(
+              heroTag: 'homeLatestFAB',
+              mini: true,
+              child: Icon(Icons.date_range),
+              onPressed: () {
+                setState(() {
+                  Movie.sortListByLatest(Repo.watched);
+                });
+              },
+            )),
+          ],
+        ),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        child: new Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            FlatButton.icon(
+                onPressed: () {
+                  _pushAddMovieScreen();
+                },
+                icon: new Icon(Icons.add, size: 30),
+                label: new Text("Add",
+                    style: TextStyle(fontSize: Repo.currentFont))),
+            FlatButton.icon(
+                onPressed: () {},
+                icon: new Icon(Icons.search, size: 30),
+                label: new Text("Search",
+                    style: TextStyle(fontSize: Repo.currentFont))),
+            // FlatButton.icon(onPressed: () {}, icon: new Icon(Icons.sort, size: 30), label: new Text("Sort", style: TextStyle(fontSize: 16))),
+          ],
+        ),
+      ),
     );
   }
 
@@ -160,11 +386,13 @@ class MovieState extends State<MovieList> {
         movie.getTitle(),
         style: TextStyle(
             fontFamily: 'Raleway',
-            fontSize: Repo.normalFont,
+            fontSize: Repo.currentFont,
             color: Colors.deepOrange),
       ),
-      subtitle:
-          new Text(DateFormat('dd-MM-yyyy').format(movie.getDate()).toString()),
+      subtitle: new Text(DateFormat('d MMM. yyyy')
+          .format(movie.getDate())
+          .toString()
+          .toLowerCase()),
       trailing: IconButton(
           icon: new Icon(
             alreadySaved ? Icons.favorite : Icons.favorite_border,
@@ -173,8 +401,18 @@ class MovieState extends State<MovieList> {
           onPressed: () {
             _saveFavoriteMovie(movie);
           }),
-      onTap: () => _promptRemoveMovie(index),
+      onTap: () => _promptEditMovie(index),
+      onLongPress: () => _promptRemoveMovie(index),
       dense: false,
+    );
+  }
+
+  // Send the user to the add movie screen
+  void _pushEditScreen(int index) {
+    // Push this page onto the stack
+    Navigator.of(context).push(
+      new MaterialPageRoute(
+          builder: (context) => EditScreen(movieIndex: index)),
     );
   }
 
@@ -186,24 +424,13 @@ class MovieState extends State<MovieList> {
     );
   }
 
-  // Send the user to the saved movies screen
-  void _pushSaved() {
-    // Push this page onto the stack
-    Navigator.of(context).push(
-      new MaterialPageRoute(builder: (context) => FavoriteScreen()),
-    );
-  }
-
-  // Remove a movie from the favorite list
-  void _removeFavoriteMovie(Movie badMovie) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    // Remove and rerender the favorite list
-    setState(() {
-      Repo.saved.remove(badMovie);
-      prefs.setString(Repo.favoriteKey, json.encode(Repo.saved));
-    });
-  }
+  // Send the user to the settings screen
+  // void _pushSettings() {
+  //   // Push this page onto the stack
+  //   Navigator.of(context).push(
+  //     new MaterialPageRoute(builder: (context) => SettingsScreen()),
+  //   );
+  // }
 
   // Save or remove a movie from the favorite list
   void _saveFavoriteMovie(Movie favMovie) async {

@@ -21,16 +21,20 @@ class _AddMovieState extends State<AddScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: new AppBar(title: new Text('Add a new movie')),
-        body: new TextField(
-          autofocus: true,
-          textCapitalization: TextCapitalization.words,
-          onSubmitted: (val) {
-            _addMovie(val);
-            Navigator.pop(context); // Close the add todo screen
-          },
-          decoration: new InputDecoration(
-              hintText: 'Enter the movie\'s name',
-              contentPadding: const EdgeInsets.all(16.0)),
+        body: Padding(
+          padding: EdgeInsets.fromLTRB(25, 50, 25, 0),
+          child: new TextField(
+            autofocus: true,
+            style: TextStyle(fontSize: Repo.currentFont + 6, wordSpacing: 2),
+            textCapitalization: TextCapitalization.words,
+            onSubmitted: (val) {
+              _addMovie(val);
+              Navigator.pop(context); // Close the add todo screen
+            },
+            decoration: new InputDecoration(
+                labelText: 'Enter the movie title',
+                contentPadding: const EdgeInsets.all(12.0)),
+          ),
         ));
   }
 
@@ -50,10 +54,10 @@ class _AddMovieState extends State<AddScreen> {
         // Add the movie to the list and rerender the list (through setState)
         setState(() {
           Movie toAddMovie = new Movie(DateTime.now(), newMovie);
-          Repo.movieItems.add(toAddMovie);
-          prefs.setString(Repo.movieKey, jsonEncode(Repo.movieItems));
+          Repo.watched.add(toAddMovie);
+          prefs.setString(Repo.movieKey, jsonEncode(Repo.watched));
           // Sort the list again
-          Movie.sortListAlphabetically(Repo.movieItems);
+          Movie.sortListAlphabetically(Repo.watched);
         });
       }
     } else {
