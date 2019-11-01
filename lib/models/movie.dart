@@ -55,6 +55,10 @@ class Movie {
     this._title = newTitle;
   }
 
+  void setDate(DateTime newDate) {
+    this._addedDate = newDate;
+  }
+
   // Check if the movie already exists in the list of movies
   static bool movieDoesExist(String movie) {
     for (Movie object in Repo.watched) {

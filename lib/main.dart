@@ -9,7 +9,7 @@ import 'package:to_do/models/repository.dart';
 import 'package:to_do/screens/addmovie.dart';
 import 'package:to_do/screens/editmovie.dart';
 import 'package:to_do/screens/favorite.dart';
-import 'package:to_do/screens/settings.dart';
+import 'package:to_do/screens/search.dart';
 import 'package:to_do/screens/watchlist.dart';
 import 'package:unicorndial/unicorndial.dart';
 
@@ -128,11 +128,13 @@ class MovieState extends State<MovieList> {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontFamily: 'MotionPicture',
-                        fontSize: 35.0,
+                        fontSize: Repo.currentFont + 20,
                         color: Colors.white)),
               ),
               decoration: BoxDecoration(
-                color: Colors.deepPurple,
+                color: brightness == Brightness.dark
+                    ? Colors.deepPurple
+                    : Colors.deepPurple,
               ),
             ),
             Padding(
@@ -152,15 +154,18 @@ class MovieState extends State<MovieList> {
                 Icons.local_florist,
                 color: brightness == Brightness.dark
                     ? Colors.white
-                    : Colors.deepPurple,
+                    : Colors.deepOrange,
               ),
               title: Text(
                 'Grandma Fontsize',
-                style: TextStyle(fontSize: Repo.currentFont,
+                style: TextStyle(
+                    fontSize: Repo.currentFont,
                     color: Repo.currentFont == Repo.largerFont
-                        ? Colors.deepPurple
-                        : Colors.black,
-                        fontWeight: FontWeight.bold),
+                        ? Colors.deepOrange
+                        : brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.black,
+                    fontWeight: FontWeight.bold),
               ),
               onTap: () {
                 setState(() {
@@ -173,16 +178,18 @@ class MovieState extends State<MovieList> {
                 Icons.local_pizza,
                 color: brightness == Brightness.dark
                     ? Colors.white
-                    : Colors.deepPurple,
+                    : Colors.deepOrange,
               ),
               title: Text(
                 'Fat Fontsize',
                 style: TextStyle(
                     fontSize: Repo.currentFont,
                     color: Repo.currentFont == Repo.largeFont
-                        ? Colors.deepPurple
-                        : Colors.black,
-                        fontWeight: FontWeight.bold),
+                        ? Colors.deepOrange
+                        : brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.black,
+                    fontWeight: FontWeight.bold),
               ),
               onTap: () {
                 setState(() {
@@ -195,15 +202,18 @@ class MovieState extends State<MovieList> {
                 Icons.offline_bolt,
                 color: brightness == Brightness.dark
                     ? Colors.white
-                    : Colors.deepPurple,
+                    : Colors.deepOrange,
               ),
               title: Text(
                 'Boring Fontsize',
-                style: TextStyle(fontSize: Repo.currentFont,
+                style: TextStyle(
+                    fontSize: Repo.currentFont,
                     color: Repo.currentFont == Repo.normalFont
-                        ? Colors.deepPurple
-                        : Colors.black,
-                        fontWeight: FontWeight.bold),
+                        ? Colors.deepOrange
+                        : brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.black,
+                    fontWeight: FontWeight.bold),
               ),
               onTap: () {
                 setState(() {
@@ -216,15 +226,18 @@ class MovieState extends State<MovieList> {
                 Icons.search,
                 color: brightness == Brightness.dark
                     ? Colors.white
-                    : Colors.deepPurple,
+                    : Colors.deepOrange,
               ),
               title: Text(
                 'Asian Fontsize',
-                style: TextStyle(fontSize: Repo.currentFont,
+                style: TextStyle(
+                    fontSize: Repo.currentFont,
                     color: Repo.currentFont == Repo.smallFont
-                        ? Colors.deepPurple
-                        : Colors.black,
-                        fontWeight: FontWeight.bold),
+                        ? Colors.deepOrange
+                        : brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.black,
+                    fontWeight: FontWeight.bold),
               ),
               onTap: () {
                 setState(() {
@@ -305,73 +318,100 @@ class MovieState extends State<MovieList> {
 
   // Build the entire list of watched movies
   Widget _buildMovieList() {
-    return new Scaffold(
-      body: ListView.builder(
-        itemBuilder: (context, index) {
-          // itemBuilder will be automatically be called as many times as it takes for the
-          // list to fill up its available space, which is most likely more than the
-          // number of watched movie the user has. So, we need to check the index is OK.
-          if (index < Repo.watched.length) {
-            return _buildMovieItem(Repo.watched[index], index);
-          }
-        },
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: Padding(
-        padding: EdgeInsets.fromLTRB(0, 0, 0, 12.0),
-        child: UnicornDialer(
-          parentHeroTag: 'homeFAB',
-          hasBackground: false,
-          orientation: UnicornOrientation.VERTICAL,
-          parentButton: Icon(Icons.sort),
-          childButtons: <UnicornButton>[
-            UnicornButton(
-                currentButton: FloatingActionButton(
-              heroTag: 'homeAZFAB',
-              mini: true,
-              child: Icon(Icons.sort_by_alpha),
-              onPressed: () {
-                setState(() {
-                  Movie.sortListAlphabetically(Repo.watched);
-                });
-              },
-            )),
-            UnicornButton(
-                currentButton: FloatingActionButton(
-              heroTag: 'homeLatestFAB',
-              mini: true,
-              child: Icon(Icons.date_range),
-              onPressed: () {
-                setState(() {
-                  Movie.sortListByLatest(Repo.watched);
-                });
-              },
-            )),
-          ],
+    if (Repo.watched.length == 0) {
+      return new Scaffold(
+        body: Center(
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+              Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Text(
+                      "U currently have watched 0 movies add them down below.",
+                      textAlign: TextAlign.center,
+                      style: new TextStyle(
+                          fontSize: Repo.currentFont + 5.0,
+                          textBaseline: TextBaseline.alphabetic))),
+            ])),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            _pushAddMovieScreen();
+          },
+          tooltip: 'Add a movie',
+          child: Icon(Icons.add),
         ),
-      ),
-      bottomNavigationBar: BottomAppBar(
-        child: new Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            FlatButton.icon(
+      );
+    } else {
+      return new Scaffold(
+        body: ListView.builder(
+          itemBuilder: (context, index) {
+            // itemBuilder will be automatically be called as many times as it takes for the
+            // list to fill up its available space, which is most likely more than the
+            // number of watched movie the user has. So, we need to check the index is OK.
+            if (index < Repo.watched.length) {
+              return _buildMovieItem(Repo.watched[index], index);
+            }
+          },
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton: Padding(
+          padding: EdgeInsets.fromLTRB(0, 0, 0, 12.0),
+          child: UnicornDialer(
+            parentHeroTag: 'homeFAB',
+            hasBackground: false,
+            orientation: UnicornOrientation.VERTICAL,
+            parentButton: Icon(Icons.sort),
+            childButtons: <UnicornButton>[
+              UnicornButton(
+                  currentButton: FloatingActionButton(
+                heroTag: 'homeAZFAB',
+                mini: true,
+                child: Icon(Icons.sort_by_alpha),
                 onPressed: () {
-                  _pushAddMovieScreen();
+                  setState(() {
+                    Movie.sortListAlphabetically(Repo.watched);
+                  });
                 },
-                icon: new Icon(Icons.add, size: 30),
-                label: new Text("Add",
-                    style: TextStyle(fontSize: Repo.currentFont))),
-            FlatButton.icon(
-                onPressed: () {},
-                icon: new Icon(Icons.search, size: 30),
-                label: new Text("Search",
-                    style: TextStyle(fontSize: Repo.currentFont))),
-            // FlatButton.icon(onPressed: () {}, icon: new Icon(Icons.sort, size: 30), label: new Text("Sort", style: TextStyle(fontSize: 16))),
-          ],
+              )),
+              UnicornButton(
+                  currentButton: FloatingActionButton(
+                heroTag: 'homeLatestFAB',
+                mini: true,
+                child: Icon(Icons.date_range),
+                onPressed: () {
+                  setState(() {
+                    Movie.sortListByLatest(Repo.watched);
+                  });
+                },
+              )),
+            ],
+          ),
         ),
-      ),
-    );
+        bottomNavigationBar: BottomAppBar(
+          child: new Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              FlatButton.icon(
+                  onPressed: () {
+                    _pushAddMovieScreen();
+                  },
+                  icon: new Icon(Icons.add, size: 30),
+                  label: new Text("Add",
+                      style: TextStyle(fontSize: Repo.currentFont))),
+              FlatButton.icon(
+                  onPressed: () {
+                    _pushSearchScreen(Repo.watched);
+                  },
+                  icon: new Icon(Icons.search, size: 30),
+                  label: new Text("Search",
+                      style: TextStyle(fontSize: Repo.currentFont))),
+              // FlatButton.icon(onPressed: () {}, icon: new Icon(Icons.sort, size: 30), label: new Text("Sort", style: TextStyle(fontSize: 16))),
+            ],
+          ),
+        ),
+      );
+    }
   }
 
   // Build a single movie item
@@ -381,7 +421,10 @@ class MovieState extends State<MovieList> {
 
     // Create a listtile with icon, title, date and wether the movie is saved or not
     return new ListTile(
-      leading: Icon(Icons.movie),
+      leading: Padding(
+        padding: EdgeInsets.fromLTRB(0, 8, 0, 8),
+        child: Icon(Icons.movie),
+      ),
       title: new Text(
         movie.getTitle(),
         style: TextStyle(
@@ -417,20 +460,21 @@ class MovieState extends State<MovieList> {
   }
 
   // Send the user to the add movie screen
+  void _pushSearchScreen(List<Movie> searchList) {
+    // Push this page onto the stack
+    Navigator.of(context).push(
+      new MaterialPageRoute(
+          builder: (context) => SearchScreen(iterableList: searchList)),
+    );
+  }
+
+  // Send the user to the add movie screen
   void _pushAddMovieScreen() {
     // Push this page onto the stack
     Navigator.of(context).push(
       new MaterialPageRoute(builder: (context) => AddScreen()),
     );
   }
-
-  // Send the user to the settings screen
-  // void _pushSettings() {
-  //   // Push this page onto the stack
-  //   Navigator.of(context).push(
-  //     new MaterialPageRoute(builder: (context) => SettingsScreen()),
-  //   );
-  // }
 
   // Save or remove a movie from the favorite list
   void _saveFavoriteMovie(Movie favMovie) async {

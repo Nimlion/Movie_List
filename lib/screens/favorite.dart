@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:to_do/models/movie.dart';
 import 'package:to_do/models/repository.dart';
+import 'package:to_do/screens/search.dart';
 import 'package:unicorndial/unicorndial.dart';
 import 'package:to_do/screens/addmovie.dart';
 
@@ -22,58 +23,6 @@ class _FavoriteState extends State<FavoriteScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _buildFavoritesList(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: Padding(
-        padding: EdgeInsets.fromLTRB(0, 0, 0, 12.0),
-        child: UnicornDialer(
-          parentHeroTag: 'favoriteFAB',
-          hasBackground: false,
-          orientation: UnicornOrientation.VERTICAL,
-          parentButton: Icon(Icons.sort),
-          childButtons: <UnicornButton>[
-            UnicornButton(
-                currentButton: FloatingActionButton(
-              heroTag: 'favAZFAB',
-              mini: true,
-              child: Icon(Icons.sort_by_alpha),
-              onPressed: () {
-                setState(() {
-                  Movie.sortListAlphabetically(Repo.saved);
-                });
-              },
-            )),
-            UnicornButton(
-                currentButton: FloatingActionButton(
-              heroTag: 'favLatestFAB',
-              mini: true,
-              child: Icon(Icons.date_range),
-              onPressed: () {
-                setState(() {
-                  Movie.sortListByLatest(Repo.saved);
-                });
-              },
-            )),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomAppBar(
-        child: new Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            FlatButton.icon(
-                onPressed: () {
-                  _pushAddMovieScreen();
-                },
-                icon: new Icon(Icons.add, size: 30),
-                label: new Text("Add", style: TextStyle(fontSize: 16))),
-            FlatButton.icon(
-                onPressed: () {},
-                icon: new Icon(Icons.search, size: 30),
-                label: new Text("Search", style: TextStyle(fontSize: 16))),
-          ],
-        ),
-      ),
     );
   }
 
@@ -85,6 +34,15 @@ class _FavoriteState extends State<FavoriteScreen> {
     );
   }
 
+  // Send the user to the add movie screen
+  void _pushSearchScreen(List<Movie> searchList) {
+    // Push this page onto the stack
+    Navigator.of(context).push(
+      new MaterialPageRoute(
+          builder: (context) => SearchScreen(iterableList: searchList)),
+    );
+  }
+
   // Build the whole list of favorite movies
   Widget _buildFavoritesList() {
     if (Repo.saved.length == 0) {
@@ -92,23 +50,81 @@ class _FavoriteState extends State<FavoriteScreen> {
           child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Text("U currently have 0 favorites.",
-              textAlign: TextAlign.center,
-              style: new TextStyle(
-                  fontSize: Repo.largerFont,
-                  textBaseline: TextBaseline.alphabetic))
+          Padding(
+              padding: EdgeInsets.all(10),
+              child: Text("U currently have 0 favorites.",
+                  textAlign: TextAlign.center,
+                  style: new TextStyle(
+                      fontSize: Repo.currentFont + 5.0,
+                      textBaseline: TextBaseline.alphabetic))),
         ],
       ));
     } else {
-      return new ListView.builder(
-        itemBuilder: (context, index) {
-          // itemBuilder will be automatically be called as many times as it takes for the
-          // list to fill up its available space, which is most likely more than the
-          // number of movie items we have. So, we need to check the index is OK.
-          if (index < Repo.saved.length) {
-            return _buildFavoriteItem(Repo.saved[index], index);
-          }
-        },
+      return Scaffold(
+        body: new ListView.builder(
+          itemBuilder: (context, index) {
+            // itemBuilder will be automatically be called as many times as it takes for the
+            // list to fill up its available space, which is most likely more than the
+            // number of movie items we have. So, we need to check the index is OK.
+            if (index < Repo.saved.length) {
+              return _buildFavoriteItem(Repo.saved[index], index);
+            }
+          },
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton: Padding(
+          padding: EdgeInsets.fromLTRB(0, 0, 0, 12.0),
+          child: UnicornDialer(
+            parentHeroTag: 'favoriteFAB',
+            hasBackground: false,
+            orientation: UnicornOrientation.VERTICAL,
+            parentButton: Icon(Icons.sort),
+            childButtons: <UnicornButton>[
+              UnicornButton(
+                  currentButton: FloatingActionButton(
+                heroTag: 'favAZFAB',
+                mini: true,
+                child: Icon(Icons.sort_by_alpha),
+                onPressed: () {
+                  setState(() {
+                    Movie.sortListAlphabetically(Repo.saved);
+                  });
+                },
+              )),
+              UnicornButton(
+                  currentButton: FloatingActionButton(
+                heroTag: 'favLatestFAB',
+                mini: true,
+                child: Icon(Icons.date_range),
+                onPressed: () {
+                  setState(() {
+                    Movie.sortListByLatest(Repo.saved);
+                  });
+                },
+              )),
+            ],
+          ),
+        ),
+        bottomNavigationBar: BottomAppBar(
+          child: new Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              FlatButton.icon(
+                  onPressed: () {
+                    _pushAddMovieScreen();
+                  },
+                  icon: new Icon(Icons.add, size: 30),
+                  label: new Text("Add", style: TextStyle(fontSize: 16))),
+              FlatButton.icon(
+                  onPressed: () {
+                    _pushSearchScreen(Repo.saved);
+                  },
+                  icon: new Icon(Icons.search, size: 30),
+                  label: new Text("Search", style: TextStyle(fontSize: 16))),
+            ],
+          ),
+        ),
       );
     }
   }
@@ -126,7 +142,7 @@ class _FavoriteState extends State<FavoriteScreen> {
         onPressed: () => setState(() {
           _saveFavoriteMovie(movie);
         }),
-        padding: EdgeInsets.all(0),
+        padding: EdgeInsets.fromLTRB(0, 8, 0, 8),
       ),
       title: new Text(
         movie.getTitle(),

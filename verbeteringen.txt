@@ -21,19 +21,18 @@
 - Watchlater: checkbox rechts als hij true is dan word movie toegevoegd aan saved + prefs.
 - Settings drawer met text size en grote text met background.
 - Watchlist ombouwen naar watchlist met checkmark of hij al is bekeken.
-
-
-- Probleem met van watchlater naar home en andersom?
-
-- Bij de eerste keer dat de gebruiker de app heeft een welkoms verhaal vertellen.
-- (vragen / zetten bij de eerste keer) -> On start up vragen wat de gebruiker wilt (preferences). 
+- Settings darkmode de tekst wit maken
 - Zoek functie. ->  
   https://medium.com/flutterpub/a-simple-search-bar-in-flutter-f99aed68f523
   https://stackoverflow.com/questions/50892584/searching-a-list-of-objects-for-a-particular-object-in-dart-using-where
   (een movie pagina maken?)
+- wanneer een app van watchlist naar watched gaat update de datum van de film naar nu.
+- Vertical align icon in listtiles van home en watchlater.
 - Naam: Filmani / movie gems/ movieMarks
+
+
 - IOS Splash screen + tekst op splash screen?
-- Vertical align icon in listtiles.
+
 
 - UnitTests
 - Rating geven aan de film
@@ -41,8 +40,7 @@
 - Probleem van watchlist als je een oude film wilt toevoegen.
 - Watchlist check bij add of datum verder is dan vandaag .isAfter().
 - Watchlist checken bij het bouwen van de watchlist of elke van de list niet al voorbij is.
-
-
+- Bij de eerste keer dat de gebruiker de app heeft een welkoms verhaal vertellen.
 - Startup versnellen
 - _saveFavoriteMovie, _pushAddMovieScreen, _removeFavoriteMovie zijn dubbel.
 
