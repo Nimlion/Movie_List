@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:to_do/models/movie.dart';
 import 'package:to_do/models/repository.dart';
-import 'package:to_do/screens/addtowatchlist.dart';
+import 'package:to_do/screens/addscreen.dart';
 import 'package:unicorndial/unicorndial.dart';
 
 /*
@@ -121,7 +121,7 @@ class _WatchlistState extends State<WatchlistScreen> {
   void _pushAddMovieScreen() {
     // Push this page onto the stack
     Navigator.of(context).push(
-      new MaterialPageRoute(builder: (context) => AddWatchlistScreen()),
+      new MaterialPageRoute(builder: (context) => AddMovieScreen(list: Repo.future, keyString: Repo.futureKey,)),
     );
   }
 

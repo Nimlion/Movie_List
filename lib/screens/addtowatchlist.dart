@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:to_do/models/movie.dart';
 import 'package:to_do/models/repository.dart';
+import 'package:to_do/models/state.dart';
 
 /*
 * Everything what has to do with the adding of movies can be found here.
@@ -112,7 +113,7 @@ class _AddWatchListState extends State<AddWatchlistScreen> {
     // Only add the task if the user actually entered something
     // and if the movie doesn't already exist
     if (movieTitle.length > 1 && movieTitle.trim() != "") {
-      if (Movie.movieDoesExist(movieTitle.toLowerCase()) == true) {
+      if (Movie.movieExistsInWatched(movieTitle.toLowerCase()) == true) {
         // Show a notification if the movie already exists
         showSimpleNotification(
           Text("This movie already exists."),
@@ -122,7 +123,7 @@ class _AddWatchListState extends State<AddWatchlistScreen> {
         // Add the movie to the list and rerender the list (through setState)
         setState(() {
           try {
-            Movie toAddMovie = new Movie(movieDateTime, movieTitle);
+            Movie toAddMovie = new Movie(movieDateTime, movieTitle, MovieStatus.normal);
             Repo.future.add(toAddMovie);
             prefs.setString(Repo.futureKey, jsonEncode(Repo.future));
             // Sort the list again

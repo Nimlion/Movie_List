@@ -14,7 +14,7 @@ class EditScreen extends StatefulWidget {
   // Declare a field that holds the to be edited movie.
   final int movieIndex;
 
-  // In the constructor, require a list.
+  // In the constructor, require the postion of the to be edited movie.
   EditScreen({Key key, @required this.movieIndex}) : super(key: key);
 
   @override
@@ -24,6 +24,7 @@ class EditScreen extends StatefulWidget {
 class _EditMovieState extends State<EditScreen> {
   // Declare a field that holds the to be edited movie.
   final int watchedIndex;
+
   int savedIndex;
   Movie movie;
   TextEditingController _controller = new TextEditingController();
@@ -77,7 +78,7 @@ class _EditMovieState extends State<EditScreen> {
           Text("The movie title hasn't changed."),
           background: Colors.redAccent,
         );
-      } else if (Movie.movieDoesExist(newTitle.toLowerCase()) == true) {
+      } else if (Movie.movieExistsInWatched(newTitle.toLowerCase()) == true) {
         // Show a notification if the movie already exists
         showSimpleNotification(
           Text("This movie already exists."),

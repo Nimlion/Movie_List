@@ -1,4 +1,5 @@
 import 'package:to_do/models/repository.dart';
+import 'package:to_do/models/state.dart';
 
 /*
 * Here is everything about a movie
@@ -8,11 +9,13 @@ class Movie {
   // Each movie has a title and a date from when it was added
   String _title;
   DateTime _addedDate;
+  MovieStatus _status;
 
   // To create a movie a date and title must be given
-  Movie(DateTime date, String name) {
+  Movie(DateTime date, String name, MovieStatus status) {
     this._addedDate = date;
     this._title = name;
+    this._status = status;
   }
 
   // Check if a movie is identical to one another
@@ -29,7 +32,7 @@ class Movie {
 
   // Translate a string from json to a object of movie
   factory Movie.fromJson(Map<String, dynamic> json) {
-    return new Movie(DateTime.parse(json['date']), json['title']);
+    return new Movie(DateTime.parse(json['date']), json['title'], getStatusFromString(json['status']));
   }
 
   // Translate a object of movie to a string in json
@@ -37,6 +40,7 @@ class Movie {
     return {
       'title': _title,
       'date': _addedDate.toString(),
+      'status': _addedDate.toString(),
     };
   }
 
@@ -45,22 +49,33 @@ class Movie {
     return this._title;
   }
 
+  // Get the title of the movie
+  MovieStatus getStatus() {
+    return this._status;
+  }
+
   // Get the date of the movie
   DateTime getDate() {
     return this._addedDate;
   }
 
-  // Set the date of the movie
+  // Set the title of the movie
   void setTitle(String newTitle) {
     this._title = newTitle;
   }
 
+  // Set the title of the movie
+  void setStatus(MovieStatus newStatus) {
+    this._status = newStatus;
+  }
+
+  // Set the date of the movie
   void setDate(DateTime newDate) {
     this._addedDate = newDate;
   }
 
-  // Check if the movie already exists in the list of movies
-  static bool movieDoesExist(String movie) {
+  // Check if the movie already exists in the list of watched movies
+  static bool movieExistsInWatched(String movie) {
     for (Movie object in Repo.watched) {
       if (object.getTitle().toLowerCase() == movie) {
         return true;
@@ -69,24 +84,47 @@ class Movie {
     return false;
   }
 
+  // Check if the movie already exists in the list of to watch movies
+  static bool movieExistsInToWatch(String movie) {
+    for (Movie object in Repo.future) {
+      if (object.getTitle().toLowerCase() == movie) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   // Sort a list of movies alphabetically
-  static void sortListAlphabetically(List<Movie> lijst) async {
-    lijst.sort((a, b) {
+  static void sortListAlphabetically(List<Movie> list) async {
+    list.sort((a, b) {
       return a.getTitle().compareTo(b.getTitle());
     });
   }
 
   // Sort a list of movies by the latest date
-  static void sortListByLatest(List<Movie> lijst) async {
-    lijst.sort((a, b) {
+  static void sortListByLatest(List<Movie> list) async {
+    list.sort((a, b) {
       return b.getDate().compareTo(a.getDate());
     });
   }
 
   // Sort a list of movies by the latest date
-  static void sortListByEarliest(List<Movie> lijst) async {
-    lijst.sort((a, b) {
+  static void sortListByEarliest(List<Movie> list) async {
+    list.sort((a, b) {
       return a.getDate().compareTo(b.getDate());
     });
+  }
+
+  // Sort a list of movies by the latest date
+  List<Movie> retrieveGems(List<Movie> list) {
+    List<Movie> listOfGems;
+
+    list.map((Movie movie) {
+      if(movie.getStatus() == MovieStatus.gem) {
+        listOfGems.add(movie);
+      }
+    });
+
+    return listOfGems;
   }
 }

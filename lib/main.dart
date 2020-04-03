@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:to_do/models/movie.dart';
 import 'package:to_do/models/repository.dart';
+import 'package:to_do/models/state.dart';
 import 'package:to_do/screens/addmovie.dart';
+import 'package:to_do/screens/addscreen.dart';
 import 'package:to_do/screens/editmovie.dart';
 import 'package:to_do/screens/favorite.dart';
 import 'package:to_do/screens/search.dart';
@@ -419,7 +421,9 @@ class MovieState extends State<MovieList> {
   // Build a single movie item
   Widget _buildMovieItem(Movie movie, int index) {
     // check if the movie is saved
-    final bool alreadySaved = Repo.saved.contains(movie);
+    final bool liked = movie.getStatus() == MovieStatus.favorite;
+    print("liked: " + liked.toString());
+    print("status: " + movie.getStatus().toString());
 
     // Create a list tile with icon, title, date and wether the movie is saved or not
     return new ListTile(
@@ -440,11 +444,11 @@ class MovieState extends State<MovieList> {
           .toLowerCase()),
       trailing: IconButton(
           icon: new Icon(
-            alreadySaved ? Icons.favorite : Icons.favorite_border,
-            color: alreadySaved ? Colors.red : null,
+            liked ? Icons.favorite : Icons.favorite_border,
+            color: liked ? Colors.red : null,
           ),
           onPressed: () {
-            _saveFavoriteMovie(movie);
+            _saveFavoriteMovie(movie, index);
           }),
       onTap: () => _promptEditMovie(index),
       onLongPress: () => _promptRemoveMovie(index),
@@ -474,26 +478,24 @@ class MovieState extends State<MovieList> {
   void _pushAddMovieScreen() {
     // Push this page onto the stack
     Navigator.of(context).push(
-      new MaterialPageRoute(builder: (context) => AddScreen()),
+      new MaterialPageRoute(
+          builder: (context) => AddMovieScreen(list: Repo.watched, keyString: Repo.movieKey)),
     );
   }
 
-  // Save or remove a movie from the favorite list
-  void _saveFavoriteMovie(Movie favMovie) async {
+  // favorite a movie from the watched list
+  void _saveFavoriteMovie(Movie favMovie, int index) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final bool alreadySaved = Repo.saved.contains(favMovie);
+    final bool alreadySaved = Repo.watched[index].getStatus() == MovieStatus.favorite;
 
     setState(() {
       // If the movie is not in the favorite list yet, add the movie. Else remove the movie from the favorite list
       if (alreadySaved) {
-        Repo.saved.remove(favMovie);
+        Repo.watched[index].setStatus(MovieStatus.normal);
       } else {
-        Repo.saved.add(favMovie);
+        Repo.watched[index].setStatus(MovieStatus.favorite);
       }
-      prefs.setString(Repo.favoriteKey, jsonEncode(Repo.saved));
+      prefs.setString(Repo.movieKey, jsonEncode(Repo.watched));
     });
-
-    // Sort the favorite list
-    Movie.sortListAlphabetically(Repo.saved);
   }
 }
