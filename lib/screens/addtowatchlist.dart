@@ -127,7 +127,6 @@ class _AddWatchListState extends State<AddWatchlistScreen> {
             prefs.setString(Repo.futureKey, jsonEncode(Repo.future));
             // Sort the list again
             Movie.sortListByLatest(Repo.future);
-            print(movieDateTime.toString());
           } catch (identifier) {
             showSimpleNotification(
               Text("Error: " + identifier.toString()),

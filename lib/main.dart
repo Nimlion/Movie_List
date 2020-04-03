@@ -350,6 +350,8 @@ class MovieState extends State<MovieList> {
             // number of watched movie the user has. So, we need to check the index is OK.
             if (index < Repo.watched.length) {
               return _buildMovieItem(Repo.watched[index], index);
+            } else {
+              return null;
             }
           },
         ),
@@ -419,7 +421,7 @@ class MovieState extends State<MovieList> {
     // check if the movie is saved
     final bool alreadySaved = Repo.saved.contains(movie);
 
-    // Create a listtile with icon, title, date and wether the movie is saved or not
+    // Create a list tile with icon, title, date and wether the movie is saved or not
     return new ListTile(
       leading: Padding(
         padding: EdgeInsets.fromLTRB(0, 8, 0, 8),

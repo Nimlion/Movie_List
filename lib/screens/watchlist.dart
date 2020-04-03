@@ -60,6 +60,8 @@ class _WatchlistState extends State<WatchlistScreen> {
             // number of movie items we have. So, we need to check the index is OK.
             if (index < Repo.future.length) {
               return _buildWatchItem(Repo.future[index], index);
+            } else {
+              return null;
             }
           },
         ),
@@ -162,10 +164,13 @@ class _WatchlistState extends State<WatchlistScreen> {
         newMovie.setDate(DateTime.now());
         Repo.watched.add(newMovie);
         prefs.setString(Repo.movieKey, jsonEncode(Repo.watched));
+
         // Sort the list again
         Movie.sortListAlphabetically(Repo.watched);
+
         // Remove from the watchlist
         Repo.future.removeAt(index);
+        prefs.setString(Repo.futureKey, jsonEncode(Repo.future));
       } catch (e) {}
     });
   }

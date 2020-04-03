@@ -42,11 +42,11 @@ flutter:
           style: italic
     - family: Alexandria
       fonts:
-        - asset: fonts\Alexandria.ttf
+        - asset: fonts/Alexandria.ttf
           style: italic
     - family: MotionPicture
       fonts:
-        - asset: fonts\MotionPicture.ttf
+        - asset: fonts/MotionPicture.ttf
           style: italic
   uses-material-design: true
 

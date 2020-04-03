@@ -1,8 +1,4 @@
-import 'dart:convert';
-
 import 'package:intl/intl.dart';
-import 'package:overlay_support/overlay_support.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:to_do/models/movie.dart';
 import 'package:to_do/models/repository.dart';
@@ -37,6 +33,7 @@ class _SearchState extends State<SearchScreen> {
     return Scaffold(
       appBar: AppBar(
         title: TextField(
+          autofocus: true,
           style: TextStyle(color: Colors.white, fontSize: Repo.currentFont + 5),
           onChanged: (text) {
             _searchText = text;
@@ -46,14 +43,12 @@ class _SearchState extends State<SearchScreen> {
                   searchedList.clear();
                   initialList.forEach((movie) {
                     if (movie.getTitle().toLowerCase().contains(_searchText)) {
-                      print("SEARCHED SEARCHED SEARCHED SEARCHED");
                       searchedList.add(movie);
                     }
                   });
                 }
               });
             } else {
-              print("NOT SEARCHED, NOT SEARCHED, NOT SEARCHED");
               setState(() {
                 _searchText = "";
                 searchedList.clear();
@@ -96,6 +91,8 @@ class _SearchState extends State<SearchScreen> {
             // number of watched movie the user has. So, we need to check the index is OK.
             if (index < searchedList.length) {
               return _buildMovieItem(searchedList[index], index);
+            } else {
+              return null;
             }
           },
         ),

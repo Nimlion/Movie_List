@@ -264,6 +264,8 @@ class MovieState extends State<MovieList> {
         // number of todo items we have. So, we need to check the index is OK.
         if (index < _movieItems.length) {
           return _buildMovieItem(_movieItems[index], index);
+        } else {
+          return null;
         }
       },
     );
@@ -290,6 +292,8 @@ class MovieState extends State<MovieList> {
           // number of movie items we have. So, we need to check the index is OK.
           if (index < _saved.length) {
             return _buildFavoriteItem(_saved[index], index);
+          } else {
+            return null;
           }
         },
       );

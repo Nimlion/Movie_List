@@ -68,6 +68,8 @@ class _FavoriteState extends State<FavoriteScreen> {
             // number of movie items we have. So, we need to check the index is OK.
             if (index < Repo.saved.length) {
               return _buildFavoriteItem(Repo.saved[index], index);
+            } else {
+              return null;
             }
           },
         ),

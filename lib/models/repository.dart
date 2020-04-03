@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:to_do/models/movie.dart';
 
 /*
