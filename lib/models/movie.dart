@@ -10,12 +10,14 @@ class Movie {
   String _title;
   DateTime _addedDate;
   MovieStatus _status;
+  double _rating;
 
   // To create a movie a date and title must be given
-  Movie(DateTime date, String name, MovieStatus status) {
+  Movie(DateTime date, String name, MovieStatus status, double rating) {
     this._addedDate = date;
     this._title = name;
     this._status = status;
+    this._rating = rating;
   }
 
   // Check if a movie is identical to one another
@@ -32,7 +34,11 @@ class Movie {
 
   // Translate a string from json to a object of movie
   factory Movie.fromJson(Map<String, dynamic> json) {
-    return new Movie(DateTime.parse(json['date']), json['title'], getStatusFromString(json['status']));
+    return new Movie(
+        DateTime.parse(json['date']),
+        json['title'],
+        getStatusFromString(json['status']),
+        json['rating'] == "null" ? 0 : double.parse(json['rating']));
   }
 
   // Translate a object of movie to a string in json
@@ -40,7 +46,8 @@ class Movie {
     return {
       'title': _title,
       'date': _addedDate.toString(),
-      'status': _addedDate.toString(),
+      'status': _status.toString(),
+      'rating': _rating.toString(),
     };
   }
 
@@ -59,6 +66,11 @@ class Movie {
     return this._addedDate;
   }
 
+  // Get the rating of the movie
+  double getRating() {
+    return this._rating;
+  }
+
   // Set the title of the movie
   void setTitle(String newTitle) {
     this._title = newTitle;
@@ -74,10 +86,15 @@ class Movie {
     this._addedDate = newDate;
   }
 
+  // Set the date of the movie
+  void setRating(double newRating) {
+    this._rating = newRating;
+  }
+
   // Check if the movie already exists in the list of watched movies
-  static bool movieExistsInWatched(String movie) {
-    for (Movie object in Repo.watched) {
-      if (object.getTitle().toLowerCase() == movie) {
+  static bool movieExistsInWatched(int current, String movie) {
+    for (var i = 0; i < Repo.watched.length; i++) {
+      if (i != current && Repo.watched[i].getTitle().toLowerCase() == movie) {
         return true;
       }
     }
@@ -116,15 +133,21 @@ class Movie {
   }
 
   // Sort a list of movies by the latest date
-  List<Movie> retrieveGems(List<Movie> list) {
-    List<Movie> listOfGems;
-
-    list.map((Movie movie) {
-      if(movie.getStatus() == MovieStatus.gem) {
-        listOfGems.add(movie);
-      }
+  static void sortListByHighestRating(List<Movie> list) async {
+    list.sort((a, b) {
+      return a.getRating().compareTo(b.getRating());
     });
+  }
 
-    return listOfGems;
+  // Sort a list of movies by the latest date
+  static void sortListByLowestRating(List<Movie> list) async {
+    list.sort((a, b) {
+      return b.getRating().compareTo(a.getRating());
+    });
+  }
+
+  // Sort a list of movies by the latest date
+  static List<Movie> retrieveGems(List<Movie> list) {
+    return list.where((movie) => movie.getStatus() == MovieStatus.gem).toList();
   }
 }

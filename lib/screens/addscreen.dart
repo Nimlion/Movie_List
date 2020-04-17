@@ -17,7 +17,8 @@ class AddMovieScreen extends StatefulWidget {
   final String keyString;
 
   // In the constructor, require a list.
-  AddMovieScreen({Key key, @required this.list, @required this.keyString}) : super(key: key);
+  AddMovieScreen({Key key, @required this.list, @required this.keyString})
+      : super(key: key);
 
   @override
   _AddMovieState createState() => _AddMovieState(list, keyString);
@@ -30,6 +31,7 @@ class _AddMovieState extends State<AddMovieScreen> {
 
   String _titleValue = '';
   String _dateValue = '';
+  double _rating = 0;
   MovieStatus _status = MovieStatus.normal;
 
   _AddMovieState(this._list, this._keyString);
@@ -44,131 +46,160 @@ class _AddMovieState extends State<AddMovieScreen> {
     }
 
     return Scaffold(
-        appBar: new AppBar(title: new Text('Add a movie movie')),
+        appBar: new AppBar(title: new Text('Add a movie')),
         body: new Container(
+          alignment: Alignment.centerLeft,
           padding: EdgeInsets.all(8.0),
-          child: Center(
-            child: Column(
-              children: <Widget>[
-                new Padding(
-                  padding: EdgeInsets.fromLTRB(25, 25, 25, 10),
-                  child: Text("Enter the movie's name",
-                      style: TextStyle(
-                          color: brightness == Brightness.dark
-                              ? Colors.white
-                              : Colors.deepPurple,
-                          fontSize: Repo.currentFont + 5,
-                          fontWeight: FontWeight.w900)),
-                ),
-                new Padding(
-                  padding: EdgeInsets.fromLTRB(30, 0, 30, 10),
-                  child: new TextField(
-                    autofocus: true,
-                    onChanged: (val) {
-                      _titleValue = val;
-                    },
-                    onSubmitted: (val) {
-                      _titleValue = val;
-                    },
-                    textCapitalization: TextCapitalization.words,
-                    decoration: new InputDecoration(
-                        hintText: 'Enter the movie\'s name',
-                        contentPadding: const EdgeInsets.all(16.0)),
-                    style: TextStyle(fontSize: Repo.currentFont + 2),
-                  ),
-                ),
-                new Padding(
-                  padding: EdgeInsets.fromLTRB(25, 25, 25, 10),
-                  child: Text("Rate the movie",
-                      style: TextStyle(
-                          color: brightness == Brightness.dark
-                              ? Colors.white
-                              : Colors.deepPurple,
-                          fontSize: Repo.currentFont + 5,
-                          fontWeight: FontWeight.w900)),
-                ),
-                new Padding(
-                  padding: EdgeInsets.fromLTRB(25, 0, 25, 10),
-                  child: new DropdownButton<MovieStatus>(
-                    items: (MovieStatus.values.map((MovieStatus status) {
-                      return new DropdownMenuItem<MovieStatus>(
-                        value: status,
-                        child: new Text(capitalize(status
-                            .toString()
-                            // Remove the type in front of the enum
-                            .substring(status.toString().indexOf('.') + 1))),
-                      );
-                    })).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _status = value;
-                      });
-                    },
-                    value: _status,
-                    elevation: 2,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              new Padding(
+                padding: EdgeInsets.fromLTRB(25, 25, 25, 10),
+                child: Text("Enter the movie's name",
                     style: TextStyle(
-                      color: brightness == Brightness.dark
-                          ? Colors.white
-                          : Colors.deepPurple,
-                      fontSize: Repo.currentFont + 3,
-                    ),
-                    isDense: false,
-                    iconSize: 40.0,
-                  ),
+                        color: brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.deepPurple,
+                        fontSize: Repo.currentFont + 5,
+                        fontWeight: FontWeight.w900)),
+              ),
+              new Padding(
+                padding: EdgeInsets.fromLTRB(25, 0, 30, 10),
+                child: new TextField(
+                  autofocus: true,
+                  onChanged: (val) {
+                    _titleValue = val;
+                  },
+                  onSubmitted: (val) {
+                    _titleValue = val;
+                  },
+                  textCapitalization: TextCapitalization.words,
+                  decoration: new InputDecoration(
+                      hintText: 'Enter the movie\'s name',
+                      contentPadding: const EdgeInsets.all(16.0)),
+                  style: TextStyle(fontSize: Repo.currentFont + 2),
                 ),
-                new Padding(
-                  padding: EdgeInsets.fromLTRB(25, 25, 25, 10),
-                  child: Text("Select when the movie was watched",
-                      style: TextStyle(
-                          color: brightness == Brightness.dark
-                              ? Colors.white
-                              : Colors.deepPurple,
-                          fontSize: Repo.currentFont + 5,
-                          fontWeight: FontWeight.w900)),
+              ),
+              new Padding(
+                padding: EdgeInsets.fromLTRB(25, 25, 25, 10),
+                child: Text("Rate the movie",
+                    style: TextStyle(
+                        color: brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.deepPurple,
+                        fontSize: Repo.currentFont + 5,
+                        fontWeight: FontWeight.w900)),
+              ),
+              new Padding(
+                padding: EdgeInsets.fromLTRB(0, 0, 25, 10),
+                child: new Slider.adaptive(
+                  value: _rating,
+                  onChanged: (newValue) {
+                    setState(() => _rating = newValue);
+                  },
+                  label: "$_rating",
+                  min: 0,
+                  max: 10,
+                  divisions: 20,
+                  activeColor: brightness == Brightness.dark
+                            ? Colors.tealAccent
+                            : Colors.deepOrange,
+                  inactiveColor: brightness == Brightness.dark
+                            ? Colors.teal
+                            : Colors.orange,
                 ),
-                new Padding(
-                  padding: EdgeInsets.fromLTRB(25, 15, 25, 10),
-                  child: new RaisedButton(
-                    onPressed: _selectDate,
+              ),
+              new Padding(
+                padding: EdgeInsets.fromLTRB(25, 0, 25, 10),
+                child: Text("Store in",
+                    style: TextStyle(
+                        color: brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.deepPurple,
+                        fontSize: Repo.currentFont + 5,
+                        fontWeight: FontWeight.w900)),
+              ),
+              new Padding(
+                padding: EdgeInsets.fromLTRB(25, 0, 25, 10),
+                child: new DropdownButton<MovieStatus>(
+                  items: (MovieStatus.values.map((MovieStatus status) {
+                    return new DropdownMenuItem<MovieStatus>(
+                      value: status,
+                      child: new Text(capitalize(status
+                          .toString()
+                          // Remove the type in front of the enum
+                          .substring(status.toString().indexOf('.') + 1))),
+                    );
+                  })).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _status = value;
+                    });
+                  },
+                  value: _status,
+                  elevation: 2,
+                  style: TextStyle(
                     color: brightness == Brightness.dark
-                        ? Colors.teal
-                        : Colors.white,
-                    child: new Text(
-                      'Pick a date',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: Repo.largeFont,
-                          color: brightness == Brightness.dark
-                              ? Colors.white
-                              : Colors.deepPurple),
-                    ),
-                  ),
-                ),
-                new Padding(
-                  padding: EdgeInsets.fromLTRB(25, 30, 25, 0),
-                  child: new RaisedButton.icon(
-                    onPressed: () {
-                      _addMovie(_titleValue, _dateValue, _status, _list);
-                      Navigator.pop(context); // Close the add todo screen
-                    },
-                    color: brightness == Brightness.dark
-                        ? Colors.teal
+                        ? Colors.white
                         : Colors.deepPurple,
-                    icon: new Icon(
-                      Icons.check,
-                      color: brightness == Brightness.dark
-                          ? Colors.white
-                          : Colors.purpleAccent,
-                    ),
-                    label: new Text("Add movie",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: Repo.largeFont)),
+                    fontSize: Repo.currentFont + 3,
+                  ),
+                  isDense: false,
+                  iconSize: 40.0,
+                ),
+              ),
+              new Padding(
+                padding: EdgeInsets.fromLTRB(25, 25, 25, 10),
+                child: Text("Select when the movie was watched",
+                    style: TextStyle(
+                        color: brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.deepPurple,
+                        fontSize: Repo.currentFont + 5,
+                        fontWeight: FontWeight.w900)),
+              ),
+              new Padding(
+                padding: EdgeInsets.fromLTRB(25, 15, 25, 10),
+                child: new RaisedButton(
+                  onPressed: _selectDate,
+                  color: brightness == Brightness.dark
+                      ? Colors.teal
+                      : Colors.white,
+                  child: new Text(
+                    'Pick a date',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: Repo.largeFont,
+                        color: brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.deepPurple),
                   ),
                 ),
-              ],
-            ),
+              ),
+              new Padding(
+                padding: EdgeInsets.fromLTRB(25, 30, 25, 0),
+                child: new RaisedButton.icon(
+                  onPressed: () {
+                    _addMovie(_titleValue, _dateValue, _status, _rating, _list);
+                    Navigator.pop(context); // Close the add todo screen
+                  },
+                  color: brightness == Brightness.dark
+                      ? Colors.teal
+                      : Colors.deepPurple,
+                  icon: new Icon(
+                    Icons.check,
+                    color: brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.purpleAccent,
+                  ),
+                  label: new Text("Add movie",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: Repo.largeFont)),
+                ),
+              ),
+            ],
           ),
         ));
   }
@@ -183,10 +214,11 @@ class _AddMovieState extends State<AddMovieScreen> {
   }
 
   // Add a new movie to the list of movies
-  void _addMovie(String movieTitle, String movieDate, MovieStatus status, List<Movie> list) async {
+  void _addMovie(String movieTitle, String movieDate, MovieStatus status,
+      double rating, List<Movie> list) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     DateTime movieDateTime;
-    
+
     try {
       movieDate = movieDate.replaceAll('-', '');
       movieDate = movieDate.replaceAll(' ', '');
@@ -201,7 +233,7 @@ class _AddMovieState extends State<AddMovieScreen> {
     // and if the movie doesn't already exist
     if (movieTitle.length > 1 && movieTitle.trim() != "") {
       if (Movie.movieExistsInToWatch(movieTitle.toLowerCase()) == true ||
-          Movie.movieExistsInWatched(movieTitle.toLowerCase()) == true) {
+          Movie.movieExistsInWatched(-1, movieTitle.toLowerCase()) == true) {
         // Show a notification if the movie already exists
         showSimpleNotification(
           Text("This movie already exists."),
@@ -211,13 +243,8 @@ class _AddMovieState extends State<AddMovieScreen> {
         // Add the movie to the list and rerender the list (through setState)
         setState(() {
           try {
-            print("HOSAM deze lijst in gesaved ");
-            print("meegegeven lijst: ");
-            print(_list.toString() + _list.length.toString());
-            print("Repo lijst: ");
-            print(Repo.watched.toString() + Repo.watched.length.toString());
             Movie toAddMovie =
-                new Movie(movieDateTime, movieTitle, status);
+                new Movie(movieDateTime, movieTitle, status, rating);
             list.add(toAddMovie);
 
             // Sort the list again
