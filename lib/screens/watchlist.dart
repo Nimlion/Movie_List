@@ -8,6 +8,8 @@ import 'package:to_do/models/repository.dart';
 import 'package:to_do/screens/addscreen.dart';
 import 'package:unicorndial/unicorndial.dart';
 
+import 'editmovie.dart';
+
 /*
 * Everything what has to do with the future movies of the user can be found here.
 * programmer: Hosam Darwish
@@ -121,7 +123,11 @@ class _WatchlistState extends State<WatchlistScreen> {
   void _pushAddMovieScreen() {
     // Push this page onto the stack
     Navigator.of(context).push(
-      new MaterialPageRoute(builder: (context) => AddMovieScreen(list: Repo.future, keyString: Repo.futureKey,)),
+      new MaterialPageRoute(
+          builder: (context) => AddMovieScreen(
+                list: Repo.future,
+                keyString: Repo.futureKey,
+              )),
     );
   }
 
@@ -155,7 +161,16 @@ class _WatchlistState extends State<WatchlistScreen> {
     );
   }
 
-// Send the movie to the watched list and remove from the watchlater list
+  // Send the user to the add movie screen
+  void _pushEditScreen(int index) {
+    // Push this page onto the stack
+    Navigator.of(context).push(
+      new MaterialPageRoute(
+          builder: (context) => EditScreen(movieIndex: index)),
+    );
+  }
+
+  // Send the movie to the watched list and remove from the watchlater list
   void sendToWatched(int index, Movie newMovie) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -173,5 +188,7 @@ class _WatchlistState extends State<WatchlistScreen> {
         prefs.setString(Repo.futureKey, jsonEncode(Repo.future));
       } catch (e) {}
     });
+
+    _pushEditScreen(Repo.watched.indexOf(newMovie));
   }
 }

@@ -113,7 +113,7 @@ class _AddWatchListState extends State<AddWatchlistScreen> {
     // Only add the task if the user actually entered something
     // and if the movie doesn't already exist
     if (movieTitle.length > 1 && movieTitle.trim() != "") {
-      if (Movie.movieExistsInWatched(movieTitle.toLowerCase()) == true) {
+      if (Movie.movieExistsInWatched(-1, movieTitle.toLowerCase()) == true) {
         // Show a notification if the movie already exists
         showSimpleNotification(
           Text("This movie already exists."),
@@ -123,7 +123,7 @@ class _AddWatchListState extends State<AddWatchlistScreen> {
         // Add the movie to the list and rerender the list (through setState)
         setState(() {
           try {
-            Movie toAddMovie = new Movie(movieDateTime, movieTitle, MovieStatus.normal);
+            Movie toAddMovie = new Movie(movieDateTime, movieTitle, MovieStatus.normal, 5.5);
             Repo.future.add(toAddMovie);
             prefs.setString(Repo.futureKey, jsonEncode(Repo.future));
             // Sort the list again
