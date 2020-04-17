@@ -6,7 +6,6 @@ import 'package:to_do/models/movie.dart';
 */
 class Repo {
   static List<Movie> watched = [];
-  static List<Movie> saved = [];
   static List<Movie> future = [];
 
   static double currentFont = normalFont;

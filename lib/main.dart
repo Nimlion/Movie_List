@@ -7,7 +7,6 @@ import 'package:intl/intl.dart';
 import 'package:to_do/models/movie.dart';
 import 'package:to_do/models/repository.dart';
 import 'package:to_do/models/state.dart';
-import 'package:to_do/screens/addmovie.dart';
 import 'package:to_do/screens/addscreen.dart';
 import 'package:to_do/screens/editmovie.dart';
 import 'package:to_do/screens/favorite.dart';
@@ -75,24 +74,26 @@ class MovieState extends State<MovieList> {
       }
 
       // Loop over all the favorited movies and add them to the List of favorite movies
-      if (prefs.getString(Repo.favoriteKey) != null) {
-        json
-            .decode(prefs.getString(Repo.favoriteKey))
-            .forEach((map) => Repo.saved.add(Movie.fromJson(map)));
-      }
-
-      // Loop over all the favorited movies and add them to the List of favorite movies
       if (prefs.getString(Repo.futureKey) != null) {
         json
             .decode(prefs.getString(Repo.futureKey))
             .forEach((map) => Repo.future.add(Movie.fromJson(map)));
       }
 
-      // Sort the saved list alphabetically
-      Movie.sortListByEarliest(Repo.future);
+      // Print all watched movies
+      // print("saved: ");
+      // for (Movie film in Repo.watched) {
+      //   print("titel: " +
+      //       film.getTitle() +
+      //       " datum: " +
+      //       film.getDate().toString() +
+      //       " status: " +
+      //       film.getStatus().toString());
+      // }
+      // print("movies: " + Repo.future.toString());
 
       // Sort the saved list alphabetically
-      Movie.sortListByLatest(Repo.saved);
+      Movie.sortListByEarliest(Repo.future);
 
       // Sort the movie list alphabetically
       Movie.sortListAlphabetically(Repo.watched);
@@ -135,7 +136,7 @@ class MovieState extends State<MovieList> {
               ),
               decoration: BoxDecoration(
                 color: brightness == Brightness.dark
-                    ? Colors.deepPurple
+                    ? Colors.teal
                     : Colors.deepPurple,
               ),
             ),
@@ -264,10 +265,6 @@ class MovieState extends State<MovieList> {
 
     // Remove the movie from the favorite list and from the watched list and rerender the list
     setState(() {
-      Movie shitMovie = Repo.watched.elementAt(index);
-
-      Repo.saved.remove(shitMovie);
-      prefs.setString(Repo.favoriteKey, json.encode(Repo.saved));
       Repo.watched.removeAt(index);
       prefs.setString(Repo.movieKey, json.encode(Repo.watched));
     });
@@ -320,7 +317,7 @@ class MovieState extends State<MovieList> {
 
   // Build the entire list of watched movies
   Widget _buildMovieList() {
-    if (Repo.watched.length == 0) {
+    if (Repo.watched == null || Repo.watched.length == 0) {
       return new Scaffold(
         body: Center(
             child: Column(
@@ -329,7 +326,7 @@ class MovieState extends State<MovieList> {
               Padding(
                   padding: EdgeInsets.all(10),
                   child: Text(
-                      "U currently have watched 0 movies add them down below.",
+                      "U currently 0 movies in this list add them down below.",
                       textAlign: TextAlign.center,
                       style: new TextStyle(
                           fontSize: Repo.currentFont + 5.0,
@@ -337,7 +334,7 @@ class MovieState extends State<MovieList> {
             ])),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            _pushAddMovieScreen();
+            _pushAddMovieScreen(Repo.watched);
           },
           tooltip: 'Add a movie',
           child: Icon(Icons.add),
@@ -366,6 +363,16 @@ class MovieState extends State<MovieList> {
             orientation: UnicornOrientation.VERTICAL,
             parentButton: Icon(Icons.sort),
             childButtons: <UnicornButton>[
+              UnicornButton(
+                  currentButton: FloatingActionButton(
+                heroTag: 'homeGemFAB',
+                mini: true,
+                child: Icon(Icons.dns),
+                onPressed: () {
+                  print("Movie.retrieveGems(Repo.watched).length");
+                  print(Movie.retrieveGems(Repo.watched).length);
+                },
+              )),
               UnicornButton(
                   currentButton: FloatingActionButton(
                 heroTag: 'homeAZFAB',
@@ -398,7 +405,7 @@ class MovieState extends State<MovieList> {
             children: <Widget>[
               FlatButton.icon(
                   onPressed: () {
-                    _pushAddMovieScreen();
+                    _pushAddMovieScreen(Repo.watched);
                   },
                   icon: new Icon(Icons.add, size: 30),
                   label: new Text("Add",
@@ -422,8 +429,17 @@ class MovieState extends State<MovieList> {
   Widget _buildMovieItem(Movie movie, int index) {
     // check if the movie is saved
     final bool liked = movie.getStatus() == MovieStatus.favorite;
-    print("liked: " + liked.toString());
-    print("status: " + movie.getStatus().toString());
+    final bool gem = movie.getStatus() == MovieStatus.gem;
+
+    Widget _icon;
+    if (liked) {
+      _icon = new Icon(Icons.favorite, color: Colors.red);
+    } else if (gem) {
+      _icon =
+          new Icon(Icons.local_activity, color: Color.fromRGBO(255, 215, 0, 1));
+    } else {
+      _icon = new Icon(Icons.favorite_border);
+    }
 
     // Create a list tile with icon, title, date and wether the movie is saved or not
     return new ListTile(
@@ -439,14 +455,13 @@ class MovieState extends State<MovieList> {
             color: Colors.deepOrange),
       ),
       subtitle: new Text(DateFormat('d MMM. yyyy')
-          .format(movie.getDate())
-          .toString()
-          .toLowerCase()),
+              .format(movie.getDate())
+              .toString()
+              .toLowerCase() +
+          " - " +
+          movie.getRating().toString()),
       trailing: IconButton(
-          icon: new Icon(
-            liked ? Icons.favorite : Icons.favorite_border,
-            color: liked ? Colors.red : null,
-          ),
+          icon: _icon,
           onPressed: () {
             _saveFavoriteMovie(movie, index);
           }),
@@ -475,25 +490,30 @@ class MovieState extends State<MovieList> {
   }
 
   // Send the user to the add movie screen
-  void _pushAddMovieScreen() {
+  void _pushAddMovieScreen(List<Movie> incompleteList) {
     // Push this page onto the stack
     Navigator.of(context).push(
       new MaterialPageRoute(
-          builder: (context) => AddMovieScreen(list: Repo.watched, keyString: Repo.movieKey)),
+          builder: (context) =>
+              AddMovieScreen(list: incompleteList, keyString: Repo.movieKey)),
     );
   }
 
   // favorite a movie from the watched list
   void _saveFavoriteMovie(Movie favMovie, int index) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final bool alreadySaved = Repo.watched[index].getStatus() == MovieStatus.favorite;
+    final bool alreadySaved =
+        Repo.watched[index].getStatus() == MovieStatus.favorite;
+    final bool isAGem = Repo.watched[index].getStatus() == MovieStatus.gem;
 
     setState(() {
       // If the movie is not in the favorite list yet, add the movie. Else remove the movie from the favorite list
       if (alreadySaved) {
         Repo.watched[index].setStatus(MovieStatus.normal);
-      } else {
+      } else if (isAGem) {
         Repo.watched[index].setStatus(MovieStatus.favorite);
+      } else {
+        Repo.watched[index].setStatus(MovieStatus.gem);
       }
       prefs.setString(Repo.movieKey, jsonEncode(Repo.watched));
     });
