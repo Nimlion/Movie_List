@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:to_do/models/movie.dart';
 import 'package:to_do/models/repository.dart';
+import 'package:to_do/models/state.dart';
 
 /*
 * Everything what has to do with the adding of movies can be found here.
@@ -25,7 +26,7 @@ class _EditMovieState extends State<EditScreen> {
   // Declare a field that holds the to be edited movie.
   final int watchedIndex;
 
-  int savedIndex;
+  Movie initialMovie;
   Movie movie;
   TextEditingController _controller = new TextEditingController();
 
@@ -34,8 +35,12 @@ class _EditMovieState extends State<EditScreen> {
   // Retrieve the indexes for both lists.
   @override
   void initState() {
-    this.movie = Repo.watched.elementAt(watchedIndex);
-    this.savedIndex = Repo.saved.indexOf(movie);
+    this.initialMovie = Repo.watched.elementAt(watchedIndex);
+    this.movie = new Movie(
+        this.initialMovie.getDate(),
+        this.initialMovie.getTitle(),
+        this.initialMovie.getStatus(),
+        this.initialMovie.getRating());
 
     _controller.text = "${movie.getTitle()}";
     super.initState();
@@ -44,41 +49,157 @@ class _EditMovieState extends State<EditScreen> {
   // Build the add page including appbar and textfield
   @override
   Widget build(BuildContext context) {
+    var brightness = MediaQuery.of(context).platformBrightness;
+
+// DUPLICATE
+    String capitalize(String badText) {
+      return badText[0].toUpperCase() + badText.substring(1);
+    }
+
     return Scaffold(
         appBar: new AppBar(title: new Text('Edit ${movie.getTitle()}')),
-        body: Padding(
-          padding: EdgeInsets.fromLTRB(25, 50, 25, 0),
-          child: new TextField(
-            controller: _controller,
-            autofocus: true,
-            style: TextStyle(fontSize: Repo.currentFont + 6, wordSpacing: 2),
-            textCapitalization: TextCapitalization.words,
-            textInputAction: TextInputAction.send,
-            onSubmitted: (val) {
-              _editMovie(val);
-              // Close this edit screen
-              Navigator.pop(context);
-            },
-            decoration: new InputDecoration(
-                labelText: 'Enter the new movie title',
-                contentPadding: const EdgeInsets.all(12.0)),
+        body: new Container(
+          alignment: Alignment.centerLeft,
+          padding: EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              new Padding(
+                padding: EdgeInsets.fromLTRB(25, 25, 25, 10),
+                child: Text("Enter the movie's name",
+                    style: TextStyle(
+                        color: brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.deepPurple,
+                        fontSize: Repo.currentFont + 5,
+                        fontWeight: FontWeight.w900)),
+              ),
+              new Padding(
+                padding: EdgeInsets.fromLTRB(25, 0, 30, 10),
+                child: new TextField(
+                  controller: _controller,
+                  autofocus: true,
+                  onChanged: (val) {
+                    movie.setTitle(val);
+                  },
+                  textCapitalization: TextCapitalization.words,
+                  decoration: new InputDecoration(
+                      hintText: 'Enter the movie\'s name',
+                      contentPadding: const EdgeInsets.all(16.0)),
+                  style: TextStyle(fontSize: Repo.currentFont + 2),
+                ),
+              ),
+              new Padding(
+                padding: EdgeInsets.fromLTRB(25, 25, 25, 10),
+                child: Text("Rate the movie",
+                    style: TextStyle(
+                        color: brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.deepPurple,
+                        fontSize: Repo.currentFont + 5,
+                        fontWeight: FontWeight.w900)),
+              ),
+              new Padding(
+                padding: EdgeInsets.fromLTRB(0, 0, 25, 10),
+                child: new Slider.adaptive(
+                  value: movie.getRating(),
+                  onChanged: (newValue) {
+                    setState(() {
+                      movie.setRating(newValue);
+                    });
+                  },
+                  label: "${movie.getRating()}",
+                  min: 0,
+                  max: 10,
+                  divisions: 20,
+                ),
+              ),
+              new Padding(
+                padding: EdgeInsets.fromLTRB(25, 0, 25, 10),
+                child: Text("Store in",
+                    style: TextStyle(
+                        color: brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.deepPurple,
+                        fontSize: Repo.currentFont + 5,
+                        fontWeight: FontWeight.w900)),
+              ),
+              new Padding(
+                padding: EdgeInsets.fromLTRB(25, 0, 25, 10),
+                child: new DropdownButton<MovieStatus>(
+                  items: (MovieStatus.values.map((MovieStatus status) {
+                    return new DropdownMenuItem<MovieStatus>(
+                      value: status,
+                      child: new Text(capitalize(status
+                          .toString()
+                          // Remove the type in front of the enum
+                          .substring(status.toString().indexOf('.') + 1))),
+                    );
+                  })).toList(),
+                  onChanged: (value) {
+                    movie.setStatus(value);
+                  },
+                  value: movie.getStatus(),
+                  elevation: 2,
+                  style: TextStyle(
+                    color: brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.deepPurple,
+                    fontSize: Repo.currentFont + 3,
+                  ),
+                  isDense: false,
+                  iconSize: 40.0,
+                ),
+              ),
+              new Padding(
+                padding: EdgeInsets.fromLTRB(25, 30, 25, 0),
+                child: new RaisedButton.icon(
+                  onPressed: () {
+                    _editMovie(movie);
+                    Navigator.pop(context); // Close the add todo screen
+                  },
+                  color: brightness == Brightness.dark
+                      ? Colors.teal
+                      : Colors.deepPurple,
+                  icon: new Icon(
+                    Icons.check,
+                    color: brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.purpleAccent,
+                  ),
+                  label: new Text("Save",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: Repo.largeFont)),
+                ),
+              ),
+            ],
           ),
         ));
   }
 
   // Edit the title of the movie from the list of movies
-  void _editMovie(String newTitle) async {
+  void _editMovie(Movie editedMovie) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    // The unedited movie
+    Movie original = Repo.watched.elementAt(watchedIndex);
+
     // Only add the task if the user actually entered something
     // and if the movie doesn't already exist
-    if (newTitle.length > 1 && newTitle.trim() != "") {
-      if (this.movie.getTitle() == newTitle) {
+    if (editedMovie.getTitle().length > 1 &&
+        editedMovie.getTitle().trim() != "") {
+      if (original == editedMovie &&
+          original.getRating() == editedMovie.getRating() &&
+          original.getStatus() == editedMovie.getStatus()) {
         // Show a notification if the movie title is the same
         showSimpleNotification(
           Text("The movie title hasn't changed."),
           background: Colors.redAccent,
         );
-      } else if (Movie.movieExistsInWatched(newTitle.toLowerCase()) == true) {
+      } else if (Movie.movieExistsInWatched(watchedIndex, 
+              editedMovie.getTitle().toLowerCase()) ==
+          true) {
         // Show a notification if the movie already exists
         showSimpleNotification(
           Text("This movie already exists."),
@@ -87,18 +208,13 @@ class _EditMovieState extends State<EditScreen> {
       } else {
         // Add the movie to the list and rerender the list (through setState)
         setState(() {
-          if (savedIndex != -1) {
-            Repo.saved[savedIndex].setTitle(newTitle);
-          }
-          Repo.watched[watchedIndex].setTitle(newTitle);
+          Repo.watched[watchedIndex] = editedMovie;
 
           // Save the list again
           prefs.setString(Repo.movieKey, jsonEncode(Repo.watched));
-          prefs.setString(Repo.favoriteKey, jsonEncode(Repo.saved));
 
           // Sort the list again
           Movie.sortListAlphabetically(Repo.watched);
-          Movie.sortListAlphabetically(Repo.saved);
         });
       }
     } else {

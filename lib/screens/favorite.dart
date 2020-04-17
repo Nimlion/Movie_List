@@ -4,9 +4,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:to_do/models/movie.dart';
 import 'package:to_do/models/repository.dart';
+import 'package:to_do/screens/addscreen.dart';
 import 'package:to_do/screens/search.dart';
+import 'package:to_do/models/state.dart';
 import 'package:unicorndial/unicorndial.dart';
-import 'package:to_do/screens/addmovie.dart';
 
 /*
 * Everything what has to do with the favorite movies of the user can be found here.
@@ -18,6 +19,8 @@ class FavoriteScreen extends StatefulWidget {
 }
 
 class _FavoriteState extends State<FavoriteScreen> {
+  List<Movie> favoritesList = Repo.watched.where((movie) => movie.getStatus() == MovieStatus.favorite).toList();
+
   // Create the favorite screen
   @override
   Widget build(BuildContext context) {
@@ -30,7 +33,9 @@ class _FavoriteState extends State<FavoriteScreen> {
   void _pushAddMovieScreen() {
     // Push this page onto the stack
     Navigator.of(context).push(
-      new MaterialPageRoute(builder: (context) => AddScreen()),
+      new MaterialPageRoute(
+          builder: (context) =>
+              AddMovieScreen(list: favoritesList, keyString: Repo.movieKey)),
     );
   }
 
@@ -45,7 +50,7 @@ class _FavoriteState extends State<FavoriteScreen> {
 
   // Build the whole list of favorite movies
   Widget _buildFavoritesList() {
-    if (Repo.saved.length == 0) {
+    if (favoritesList.length == 0) {
       return new Center(
           child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -66,8 +71,8 @@ class _FavoriteState extends State<FavoriteScreen> {
             // itemBuilder will be automatically be called as many times as it takes for the
             // list to fill up its available space, which is most likely more than the
             // number of movie items we have. So, we need to check the index is OK.
-            if (index < Repo.saved.length) {
-              return _buildFavoriteItem(Repo.saved[index], index);
+            if (index < favoritesList.length) {
+              return _buildFavoriteItem(favoritesList[index], index);
             } else {
               return null;
             }
@@ -89,7 +94,7 @@ class _FavoriteState extends State<FavoriteScreen> {
                 child: Icon(Icons.sort_by_alpha),
                 onPressed: () {
                   setState(() {
-                    Movie.sortListAlphabetically(Repo.saved);
+                    Movie.sortListAlphabetically(favoritesList);
                   });
                 },
               )),
@@ -100,7 +105,7 @@ class _FavoriteState extends State<FavoriteScreen> {
                 child: Icon(Icons.date_range),
                 onPressed: () {
                   setState(() {
-                    Movie.sortListByLatest(Repo.saved);
+                    Movie.sortListByLatest(favoritesList);
                   });
                 },
               )),
@@ -120,7 +125,7 @@ class _FavoriteState extends State<FavoriteScreen> {
                   label: new Text("Add", style: TextStyle(fontSize: 16))),
               FlatButton.icon(
                   onPressed: () {
-                    _pushSearchScreen(Repo.saved);
+                    _pushSearchScreen(favoritesList);
                   },
                   icon: new Icon(Icons.search, size: 30),
                   label: new Text("Search", style: TextStyle(fontSize: 16))),
@@ -133,7 +138,7 @@ class _FavoriteState extends State<FavoriteScreen> {
 
   // Build a single favorite movie for within a list
   Widget _buildFavoriteItem(Movie movie, int index) {
-    final bool alreadySaved = Repo.saved.contains(movie);
+    final bool alreadySaved = favoritesList.contains(movie);
 
     return new ListTile(
       leading: IconButton(
@@ -142,7 +147,7 @@ class _FavoriteState extends State<FavoriteScreen> {
           color: alreadySaved ? Colors.red : null,
         ),
         onPressed: () => setState(() {
-          _saveFavoriteMovie(movie);
+          _saveFavoriteMovie(movie, index);
         }),
         padding: EdgeInsets.fromLTRB(0, 8, 0, 8),
       ),
@@ -160,21 +165,21 @@ class _FavoriteState extends State<FavoriteScreen> {
   }
 
   // Save or remove a movie from the favorite list
-  void _saveFavoriteMovie(Movie favMovie) async {
+  void _saveFavoriteMovie(Movie favMovie, int index) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final bool alreadySaved = Repo.saved.contains(favMovie);
+    final bool alreadySaved = favoritesList[index].getStatus() == MovieStatus.favorite;
 
     setState(() {
       // If the movie is not in the favorite list yet, add the movie. Else remove the movie from the favorite list
       if (alreadySaved) {
-        Repo.saved.remove(favMovie);
+        favoritesList[index].setStatus(MovieStatus.normal);
       } else {
-        Repo.saved.add(favMovie);
+        favoritesList[index].setStatus(MovieStatus.favorite);
       }
-      prefs.setString(Repo.favoriteKey, jsonEncode(Repo.saved));
+      prefs.setString(Repo.movieKey, jsonEncode(Repo.watched));
     });
 
     // Sort the favorite list
-    Movie.sortListAlphabetically(Repo.saved);
+    Movie.sortListAlphabetically(favoritesList);
   }
 }
