@@ -102,11 +102,11 @@ class _AddMovieState extends State<AddMovieScreen> {
                   max: 10,
                   divisions: 20,
                   activeColor: brightness == Brightness.dark
-                            ? Colors.tealAccent
-                            : Colors.deepOrange,
+                      ? Colors.tealAccent
+                      : Colors.deepOrange,
                   inactiveColor: brightness == Brightness.dark
-                            ? Colors.teal
-                            : Colors.orange,
+                      ? Colors.teal
+                      : Colors.orange,
                 ),
               ),
               new Padding(
@@ -169,7 +169,7 @@ class _AddMovieState extends State<AddMovieScreen> {
                     'Pick a date',
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: Repo.largeFont,
+                        fontSize: Repo.currentFont + 2,
                         color: brightness == Brightness.dark
                             ? Colors.white
                             : Colors.deepPurple),
@@ -196,7 +196,7 @@ class _AddMovieState extends State<AddMovieScreen> {
                       style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          fontSize: Repo.largeFont)),
+                          fontSize: Repo.currentFont + 2)),
                 ),
               ),
             ],
@@ -251,6 +251,11 @@ class _AddMovieState extends State<AddMovieScreen> {
             Movie.sortListByLatest(list);
 
             prefs.setString(_keyString, jsonEncode(list));
+
+            showSimpleNotification(
+              Text("Movie succesfully added."),
+              background: Colors.deepPurpleAccent,
+            );
           } catch (identifier) {
             showSimpleNotification(
               Text("Error: " + identifier.toString()),

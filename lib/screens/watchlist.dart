@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:intl/intl.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:to_do/models/movie.dart';
@@ -111,7 +112,8 @@ class _WatchlistState extends State<WatchlistScreen> {
                     _pushAddMovieScreen();
                   },
                   icon: new Icon(Icons.add, size: 30),
-                  label: new Text("Add", style: TextStyle(fontSize: 16))),
+                  label: new Text("Add",
+                      style: TextStyle(fontSize: Repo.currentFont))),
             ],
           ),
         ),
@@ -146,10 +148,13 @@ class _WatchlistState extends State<WatchlistScreen> {
             color: Colors.purple,
             letterSpacing: 1.5),
       ),
-      subtitle: new Text(DateFormat('d MMM. yyyy')
-          .format(movie.getDate())
-          .toString()
-          .toLowerCase()),
+      subtitle: new Text(
+        DateFormat('d MMM. yyyy')
+            .format(movie.getDate())
+            .toString()
+            .toLowerCase(),
+        style: TextStyle(fontSize: Repo.currentFont * 0.95),
+      ),
       dense: false,
       trailing: Checkbox(
         value: false,
@@ -186,6 +191,11 @@ class _WatchlistState extends State<WatchlistScreen> {
         // Remove from the watchlist
         Repo.future.removeAt(index);
         prefs.setString(Repo.futureKey, jsonEncode(Repo.future));
+
+        showSimpleNotification(
+          Text("Movie succesfully send to watched."),
+          background: Colors.deepPurpleAccent,
+        );
       } catch (e) {}
     });
 

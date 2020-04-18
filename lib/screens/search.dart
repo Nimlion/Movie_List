@@ -115,7 +115,8 @@ class _SearchState extends State<SearchScreen> {
       subtitle: new Text(DateFormat('d MMM. yyyy')
           .format(movie.getDate())
           .toString()
-          .toLowerCase()),
+          .toLowerCase(),
+        style: TextStyle(fontSize: Repo.currentFont * 0.95),),
       onTap: () => {},
       onLongPress: () => {},
       dense: false,

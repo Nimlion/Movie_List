@@ -171,7 +171,7 @@ class _EditMovieState extends State<EditScreen> {
                       style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          fontSize: Repo.largeFont)),
+                          fontSize: Repo.currentFont + 2)),
                 ),
               ),
             ],
@@ -197,8 +197,8 @@ class _EditMovieState extends State<EditScreen> {
           Text("The movie title hasn't changed."),
           background: Colors.redAccent,
         );
-      } else if (Movie.movieExistsInWatched(watchedIndex, 
-              editedMovie.getTitle().toLowerCase()) ==
+      } else if (Movie.movieExistsInWatched(
+              watchedIndex, editedMovie.getTitle().toLowerCase()) ==
           true) {
         // Show a notification if the movie already exists
         showSimpleNotification(
@@ -215,6 +215,11 @@ class _EditMovieState extends State<EditScreen> {
 
           // Sort the list again
           Movie.sortListAlphabetically(Repo.watched);
+
+          showSimpleNotification(
+            Text("Movie succesfully edited."),
+            background: Colors.deepPurpleAccent,
+          );
         });
       }
     } else {

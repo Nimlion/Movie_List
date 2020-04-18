@@ -12,7 +12,7 @@ class Repo {
   static final double smallFont = 12.0;
   static final double normalFont = 14.0;
   static final double largeFont = 16.0;
-  static final double largerFont = 30.0;
+  static final double largerFont = 26.0;
 
   static final String movieKey = 'list';
   static final String futureKey = 'watchlist';

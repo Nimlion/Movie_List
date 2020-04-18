@@ -122,13 +122,13 @@ class _FavoriteState extends State<FavoriteScreen> {
                     _pushAddMovieScreen();
                   },
                   icon: new Icon(Icons.add, size: 30),
-                  label: new Text("Add", style: TextStyle(fontSize: 16))),
+                  label: new Text("Add", style: TextStyle(fontSize: Repo.currentFont))),
               FlatButton.icon(
                   onPressed: () {
                     _pushSearchScreen(favoritesList);
                   },
                   icon: new Icon(Icons.search, size: 30),
-                  label: new Text("Search", style: TextStyle(fontSize: 16))),
+                  label: new Text("Search", style: TextStyle(fontSize: Repo.currentFont))),
             ],
           ),
         ),

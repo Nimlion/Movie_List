@@ -268,6 +268,11 @@ class MovieState extends State<MovieList> {
       Repo.watched.removeAt(index);
       prefs.setString(Repo.movieKey, json.encode(Repo.watched));
     });
+
+    showSimpleNotification(
+      Text("Movie succesfully deleted."),
+      background: Colors.deepPurpleAccent,
+    );
   }
 
   void _promptEditMovie(int index) {
@@ -454,12 +459,15 @@ class MovieState extends State<MovieList> {
             fontSize: Repo.currentFont,
             color: Colors.deepOrange),
       ),
-      subtitle: new Text(DateFormat('d MMM. yyyy')
-              .format(movie.getDate())
-              .toString()
-              .toLowerCase() +
-          " - " +
-          movie.getRating().toString()),
+      subtitle: new Text(
+        DateFormat('d MMM. yyyy')
+                .format(movie.getDate())
+                .toString()
+                .toLowerCase() +
+            " - " +
+            movie.getRating().toString(),
+        style: TextStyle(fontSize: Repo.currentFont * 0.95),
+      ),
       trailing: IconButton(
           icon: _icon,
           onPressed: () {
