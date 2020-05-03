@@ -19,7 +19,8 @@ class FavoriteScreen extends StatefulWidget {
 }
 
 class _FavoriteState extends State<FavoriteScreen> {
-  List<Movie> favoritesList = Movie.retrieveGems(Repo.watched) + Movie.retrieveFavorites();
+  List<Movie> favoritesList =
+      Movie.retrieveGems(Repo.watched) + Movie.retrieveFavorites();
 
   // Create the favorite screen
   @override
@@ -122,13 +123,15 @@ class _FavoriteState extends State<FavoriteScreen> {
                     _pushAddMovieScreen();
                   },
                   icon: new Icon(Icons.add, size: 30),
-                  label: new Text("Add", style: TextStyle(fontSize: Repo.currentFont))),
+                  label: new Text("Add",
+                      style: TextStyle(fontSize: Repo.currentFont))),
               FlatButton.icon(
                   onPressed: () {
                     _pushSearchScreen(favoritesList);
                   },
                   icon: new Icon(Icons.search, size: 30),
-                  label: new Text("Search", style: TextStyle(fontSize: Repo.currentFont))),
+                  label: new Text("Search",
+                      style: TextStyle(fontSize: Repo.currentFont))),
             ],
           ),
         ),
@@ -167,7 +170,8 @@ class _FavoriteState extends State<FavoriteScreen> {
   // Save or remove a movie from the favorite list
   void _saveFavoriteMovie(Movie favMovie, int index) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final bool alreadySaved = favoritesList[index].getStatus() == MovieStatus.favorite;
+    final bool alreadySaved =
+        favoritesList[index].getStatus() == MovieStatus.favorite;
 
     setState(() {
       // If the movie is not in the favorite list yet, add the movie. Else remove the movie from the favorite list

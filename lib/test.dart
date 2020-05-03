@@ -143,8 +143,8 @@ class MovieState extends State<MovieList> {
         showSimpleNotification(
           Text("This movie already exists."),
           background: brightness == Brightness.dark
-                        ? Colors.tealAccent
-                        : Colors.deepPurpleAccent,
+              ? Colors.tealAccent
+              : Colors.deepPurpleAccent,
         );
       } else {
         // Putting our code inside "setState" tells the app that our state has changed, and
@@ -160,8 +160,8 @@ class MovieState extends State<MovieList> {
       showSimpleNotification(
         Text("Please enter a correct name."),
         background: brightness == Brightness.dark
-                        ? Colors.tealAccent
-                        : Colors.deepPurpleAccent,
+            ? Colors.tealAccent
+            : Colors.deepPurpleAccent,
       );
     }
   }

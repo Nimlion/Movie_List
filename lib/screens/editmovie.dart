@@ -220,8 +220,8 @@ class _EditMovieState extends State<EditScreen> {
           showSimpleNotification(
             Text("Movie succesfully edited."),
             background: brightness == Brightness.dark
-                        ? Colors.tealAccent
-                        : Colors.deepPurpleAccent,
+                ? Colors.tealAccent
+                : Colors.deepPurpleAccent,
           );
         });
       }

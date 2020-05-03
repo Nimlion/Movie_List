@@ -256,8 +256,8 @@ class _AddMovieState extends State<AddMovieScreen> {
             showSimpleNotification(
               Text("Movie succesfully added."),
               background: brightness == Brightness.dark
-                        ? Colors.tealAccent
-                        : Colors.deepPurpleAccent,
+                  ? Colors.tealAccent
+                  : Colors.deepPurpleAccent,
             );
           } catch (identifier) {
             showSimpleNotification(

@@ -48,3 +48,16 @@ BUG SITES:
 https://flutter.dev/docs/development/data-and-backend/state-mgmt/simple
 https://stackoverflow.com/questions/48844804/flutter-setstate-not-updating-inner-stateful-widget
 https://stackoverflow.com/questions/51931017/update-ui-after-removing-items-from-list
+
+
+// Print all watched movies
+// print("saved: ");
+// for (Movie film in Repo.watched) {
+//   print("titel: " +
+//       film.getTitle() +
+//       " datum: " +
+//       film.getDate().toString() +
+//       " status: " +
+//       film.getStatus().toString());
+// }
+// print("movies: " + Repo.future.toString());

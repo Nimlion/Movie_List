@@ -198,8 +198,8 @@ class _WatchlistState extends State<WatchlistScreen> {
     showSimpleNotification(
       Text("Movie succesfully deleted."),
       background: brightness == Brightness.dark
-                        ? Colors.tealAccent
-                        : Colors.deepPurpleAccent,
+          ? Colors.tealAccent
+          : Colors.deepPurpleAccent,
     );
   }
 
@@ -233,8 +233,8 @@ class _WatchlistState extends State<WatchlistScreen> {
         showSimpleNotification(
           Text("Movie succesfully send to watched."),
           background: brightness == Brightness.dark
-                        ? Colors.tealAccent
-                        : Colors.deepPurpleAccent,
+              ? Colors.tealAccent
+              : Colors.deepPurpleAccent,
         );
       } catch (e) {}
     });

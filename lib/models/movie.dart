@@ -93,9 +93,11 @@ class Movie {
 
   // Get the average rating of a given list of movies
   static double getAverageRating(List<Movie> list) {
-    return num.parse((list.map((movie) => movie.getRating()).reduce((a, b) => a + b) /
-            list.length)
-        .toDouble().toStringAsFixed(1));
+    return num.parse(
+        (list.map((movie) => movie.getRating()).reduce((a, b) => a + b) /
+                list.length)
+            .toDouble()
+            .toStringAsFixed(1));
   }
 
   // Check if the movie already exists in the list of watched movies
