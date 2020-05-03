@@ -91,6 +91,13 @@ class Movie {
     this._rating = newRating;
   }
 
+  // Get the average rating of a given list of movies
+  static double getAverageRating(List<Movie> list) {
+    return num.parse((list.map((movie) => movie.getRating()).reduce((a, b) => a + b) /
+            list.length)
+        .toDouble().toStringAsFixed(1));
+  }
+
   // Check if the movie already exists in the list of watched movies
   static bool movieExistsInWatched(int current, String movie) {
     for (var i = 0; i < Repo.watched.length; i++) {
@@ -125,29 +132,33 @@ class Movie {
     });
   }
 
-  // Sort a list of movies by the latest date
+  // Sort a list of movies by the earliest date
   static void sortListByEarliest(List<Movie> list) async {
     list.sort((a, b) {
       return a.getDate().compareTo(b.getDate());
     });
   }
 
-  // Sort a list of movies by the latest date
+  // Sort a list of movies by the highest rating
   static void sortListByHighestRating(List<Movie> list) async {
-    list.sort((a, b) {
-      return a.getRating().compareTo(b.getRating());
-    });
-  }
+    // First sort the list alphabetically
+    sortListAlphabetically(list);
 
-  // Sort a list of movies by the latest date
-  static void sortListByLowestRating(List<Movie> list) async {
+    // Then sort the list further by rating
     list.sort((a, b) {
       return b.getRating().compareTo(a.getRating());
     });
   }
 
-  // Sort a list of movies by the latest date
+  // Retrieve all movies with the gem status of a given list
   static List<Movie> retrieveGems(List<Movie> list) {
     return list.where((movie) => movie.getStatus() == MovieStatus.gem).toList();
+  }
+
+  // Retrieve all favorite movies from the watched list
+  static List<Movie> retrieveFavorites() {
+    return Repo.watched
+        .where((movie) => movie.getStatus() == MovieStatus.favorite)
+        .toList();
   }
 }
