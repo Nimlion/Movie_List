@@ -437,17 +437,19 @@ class MovieState extends State<MovieList> {
               ),
               title: RichText(
                 text: Repo.watched.length == 0
-                    ? Text(
-                        Repo.watched.length == 0
-                            ? 'You haven\'t given any rating yet'
-                            : 'Your average rating is ' +
-                                Movie.getAverageRating(Repo.watched).toString(),
+                    ? TextSpan(
                         style: TextStyle(
-                            fontSize: Repo.currentFont + 2,
-                            color: brightness == Brightness.dark
-                                ? Colors.white
-                                : Colors.black,
-                            fontWeight: FontWeight.bold),
+                          fontSize: Repo.currentFont + 2,
+                          color: brightness == Brightness.dark
+                              ? Colors.white
+                              : Colors.black,
+                          fontFamily: 'Alexandria',
+                          fontWeight: FontWeight.bold,
+                        ),
+                        children: <TextSpan>[
+                          TextSpan(text: 'You haven\'t given any rating yet')
+                        ],
+                        // children: TextSpan(text: 'You haven\'t given any rating yet'),
                       )
                     : TextSpan(
                         style: TextStyle(
