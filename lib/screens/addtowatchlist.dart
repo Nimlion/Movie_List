@@ -26,63 +26,92 @@ class _AddWatchListState extends State<AddWatchlistScreen> {
     var brightness = MediaQuery.of(context).platformBrightness;
 
     return Scaffold(
-        appBar: new AppBar(title: new Text('Add a upcoming movie')),
+        appBar: new AppBar(title: new Text('Add a movie to watch later')),
         body: new Container(
+          alignment: Alignment.centerLeft,
           padding: EdgeInsets.all(8.0),
-          child: Center(
-            child: Column(
-              children: <Widget>[
-                new Padding(
-                  padding: EdgeInsets.fromLTRB(25, 15, 25, 15),
-                  child: new TextField(
-                    autofocus: true,
-                    onChanged: (val) {
-                      _titleValue = val;
-                    },
-                    onSubmitted: (val) {
-                      _titleValue = val;
-                    },
-                    textCapitalization: TextCapitalization.words,
-                    decoration: new InputDecoration(
-                        hintText: 'Enter the movie\'s name',
-                        contentPadding: const EdgeInsets.all(16.0)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              new Padding(
+                padding: EdgeInsets.fromLTRB(25, 25, 25, 10),
+                child: Text("Enter the movie's name",
+                    style: TextStyle(
+                        color: brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.deepPurple,
+                        fontSize: Repo.currentFont + 5,
+                        fontWeight: FontWeight.w900)),
+              ),
+              new Padding(
+                padding: EdgeInsets.fromLTRB(25, 0, 30, 10),
+                child: new TextField(
+                  autofocus: true,
+                  onChanged: (val) {
+                    _titleValue = val;
+                  },
+                  onSubmitted: (val) {
+                    _titleValue = val;
+                  },
+                  textCapitalization: TextCapitalization.words,
+                  decoration: new InputDecoration(
+                      hintText: 'Enter the movie\'s name',
+                      contentPadding: const EdgeInsets.all(16.0)),
+                  style: TextStyle(fontSize: Repo.currentFont + 2),
+                ),
+              ),
+              new Padding(
+                padding: EdgeInsets.fromLTRB(25, 25, 25, 10),
+                child: Text("Select date",
+                    style: TextStyle(
+                        color: brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.deepPurple,
+                        fontSize: Repo.currentFont + 5,
+                        fontWeight: FontWeight.w900)),
+              ),
+              new Padding(
+                padding: EdgeInsets.fromLTRB(25, 15, 25, 10),
+                child: new RaisedButton(
+                  onPressed: _selectDate,
+                  color: brightness == Brightness.dark
+                      ? Colors.teal
+                      : Colors.white,
+                  child: new Text(
+                    'Pick a date',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: Repo.currentFont + 2,
+                        color: brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.deepPurple),
                   ),
                 ),
-                new Padding(
-                  padding: EdgeInsets.fromLTRB(25, 15, 25, 15),
-                  child: new RaisedButton(
-                    onPressed: _selectDate,
-                    color: brightness == Brightness.dark ? Colors.teal : Colors.white,
-                    child: new Text(
-                      'Select Date',
+              ),
+              new Padding(
+                padding: EdgeInsets.fromLTRB(25, 30, 25, 0),
+                child: new RaisedButton.icon(
+                  onPressed: () {
+                    _addMovie(_titleValue, _dateValue);
+                    Navigator.pop(context); // Close the add todo screen
+                  },
+                  color: brightness == Brightness.dark
+                      ? Colors.teal
+                      : Colors.deepPurple,
+                  icon: new Icon(
+                    Icons.check,
+                    color: brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.purpleAccent,
+                  ),
+                  label: new Text("Add movie",
                       style: TextStyle(
+                          color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          fontSize: Repo.largeFont,
-                          color: brightness == Brightness.dark ? Colors.white : Colors.deepPurple),
-                    ),
-                  ),
+                          fontSize: Repo.currentFont + 2)),
                 ),
-                new Padding(
-                  padding: EdgeInsets.fromLTRB(25, 50, 25, 15),
-                  child: new RaisedButton.icon(
-                    onPressed: () {
-                      _addMovie(_titleValue, _dateValue);
-                      Navigator.pop(context); // Close the add todo screen
-                    },
-                    color: brightness == Brightness.dark ? Colors.teal : Colors.deepPurple,
-                    icon: new Icon(
-                      Icons.check,
-                      color: brightness == Brightness.dark ? Colors.white : Colors.purpleAccent,
-                    ),
-                    label: new Text("Add to watchlist",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: Repo.largeFont)),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ));
   }
@@ -114,7 +143,7 @@ class _AddWatchListState extends State<AddWatchlistScreen> {
     // Only add the task if the user actually entered something
     // and if the movie doesn't already exist
     if (movieTitle.length > 1 && movieTitle.trim() != "") {
-      if (Movie.movieExistsInWatched(-1, movieTitle.toLowerCase()) == true) {
+      if (Movie.movieExistsInToWatch(movieTitle.toLowerCase()) == true) {
         // Show a notification if the movie already exists
         showSimpleNotification(
           Text("This movie already exists."),
@@ -124,7 +153,8 @@ class _AddWatchListState extends State<AddWatchlistScreen> {
         // Add the movie to the list and rerender the list (through setState)
         setState(() {
           try {
-            Movie toAddMovie = new Movie(movieDateTime, movieTitle, MovieStatus.normal, 5.5);
+            Movie toAddMovie =
+                new Movie(movieDateTime, movieTitle, MovieStatus.normal, 0);
             Repo.future.add(toAddMovie);
             prefs.setString(Repo.futureKey, jsonEncode(Repo.future));
 
