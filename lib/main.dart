@@ -146,10 +146,11 @@ class MovieState extends State<MovieList> {
                 "Fontsize",
                 textAlign: TextAlign.center,
                 style: TextStyle(
+                    fontFamily: 'Raleway',
                     fontSize: Repo.currentFont + 6,
                     fontWeight: FontWeight.bold,
                     color: brightness == Brightness.dark
-                        ? Colors.white
+                        ? Colors.deepOrange
                         : Colors.deepPurple),
               ),
             ),
@@ -157,7 +158,7 @@ class MovieState extends State<MovieList> {
               leading: Icon(
                 Icons.local_florist,
                 color: brightness == Brightness.dark
-                    ? Colors.white
+                    ? Colors.deepOrange
                     : Colors.deepOrange,
               ),
               title: Text(
@@ -181,7 +182,7 @@ class MovieState extends State<MovieList> {
               leading: Icon(
                 Icons.local_pizza,
                 color: brightness == Brightness.dark
-                    ? Colors.white
+                    ? Colors.deepOrange
                     : Colors.deepOrange,
               ),
               title: Text(
@@ -205,7 +206,7 @@ class MovieState extends State<MovieList> {
               leading: Icon(
                 Icons.highlight_off,
                 color: brightness == Brightness.dark
-                    ? Colors.white
+                    ? Colors.deepOrange
                     : Colors.deepOrange,
               ),
               title: Text(
@@ -229,7 +230,7 @@ class MovieState extends State<MovieList> {
               leading: Icon(
                 Icons.search,
                 color: brightness == Brightness.dark
-                    ? Colors.white
+                    ? Colors.deepOrange
                     : Colors.deepOrange,
               ),
               title: Text(
@@ -255,10 +256,11 @@ class MovieState extends State<MovieList> {
                 "Stats",
                 textAlign: TextAlign.center,
                 style: TextStyle(
+                    fontFamily: 'Raleway',
                     fontSize: Repo.currentFont + 6,
                     fontWeight: FontWeight.bold,
                     color: brightness == Brightness.dark
-                        ? Colors.white
+                        ? Colors.deepOrange
                         : Colors.deepPurple),
               ),
             ),
@@ -307,10 +309,12 @@ class MovieState extends State<MovieList> {
               ),
               title: Text(
                 Movie.retrieveFavorites().length == 1
-                    ? Movie.retrieveFavorites().length.toString() +
-                        ' favorite watched'
-                    : Movie.retrieveFavorites().length.toString() +
-                        ' favorites watched',
+                    ? 'You have ' +
+                        Movie.retrieveGems(Repo.watched).length.toString() +
+                        ' favorite'
+                    : 'You have ' +
+                        Movie.retrieveGems(Repo.watched).length.toString() +
+                        ' favorites',
                 style: TextStyle(
                     fontSize: Repo.currentFont + 2,
                     color: brightness == Brightness.dark
@@ -383,9 +387,8 @@ class MovieState extends State<MovieList> {
     showSimpleNotification(
       Text("Movie succesfully deleted."),
       background: brightness == Brightness.dark
-                        ? Colors.tealAccent
-                        : Colors.deepPurpleAccent,
-      
+          ? Colors.tealAccent
+          : Colors.deepPurpleAccent,
     );
   }
 
