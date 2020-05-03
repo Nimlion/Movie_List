@@ -19,7 +19,7 @@ class FavoriteScreen extends StatefulWidget {
 }
 
 class _FavoriteState extends State<FavoriteScreen> {
-  List<Movie> favoritesList = Repo.watched.where((movie) => movie.getStatus() == MovieStatus.favorite).toList();
+  List<Movie> favoritesList = Movie.retrieveGems(Repo.watched) + Movie.retrieveFavorites();
 
   // Create the favorite screen
   @override
@@ -138,13 +138,13 @@ class _FavoriteState extends State<FavoriteScreen> {
 
   // Build a single favorite movie for within a list
   Widget _buildFavoriteItem(Movie movie, int index) {
-    final bool alreadySaved = favoritesList.contains(movie);
+    final bool isAGem = movie.getStatus() == MovieStatus.gem;
 
     return new ListTile(
       leading: IconButton(
         icon: new Icon(
-          alreadySaved ? Icons.favorite : Icons.favorite_border,
-          color: alreadySaved ? Colors.red : null,
+          isAGem ? Icons.local_activity : Icons.favorite,
+          color: isAGem ? Color.fromRGBO(255, 215, 0, 1) : Colors.red,
         ),
         onPressed: () => setState(() {
           _saveFavoriteMovie(movie, index);

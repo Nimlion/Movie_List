@@ -6,9 +6,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:to_do/models/movie.dart';
 import 'package:to_do/models/repository.dart';
-import 'package:to_do/screens/addscreen.dart';
 import 'package:unicorndial/unicorndial.dart';
 
+import 'addtowatchlist.dart';
 import 'editmovie.dart';
 
 /*
@@ -125,11 +125,7 @@ class _WatchlistState extends State<WatchlistScreen> {
   void _pushAddMovieScreen() {
     // Push this page onto the stack
     Navigator.of(context).push(
-      new MaterialPageRoute(
-          builder: (context) => AddMovieScreen(
-                list: Repo.future,
-                keyString: Repo.futureKey,
-              )),
+      new MaterialPageRoute(builder: (context) => AddWatchlistScreen()),
     );
   }
 
@@ -155,7 +151,6 @@ class _WatchlistState extends State<WatchlistScreen> {
             .toLowerCase(),
         style: TextStyle(fontSize: Repo.currentFont * 0.95),
       ),
-      dense: false,
       trailing: Checkbox(
         value: false,
         onChanged: (bool checked) {
@@ -163,6 +158,48 @@ class _WatchlistState extends State<WatchlistScreen> {
           sendToWatched(index, movie);
         },
       ),
+      onTap: () => _promptRemoveFromWatched(index),
+      dense: false,
+    );
+  }
+
+  // Show a prompt to the user to confirm he wants to delete a movie from his watchlist
+  void _promptRemoveFromWatched(int index) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return new AlertDialog(
+              title: new Text('Delete ${Repo.future[index].getTitle()} ?'),
+              actions: <Widget>[
+                new FlatButton(
+                    child: new Text('Cancel'),
+                    onPressed: () => Navigator.of(context).pop()),
+                new FlatButton(
+                    child: new Text('Delete'),
+                    onPressed: () {
+                      _removeMovieFromList(index);
+                      Navigator.of(context).pop();
+                    })
+              ]);
+        });
+  }
+
+  // Remove a movie from the list of movies to watch
+  void _removeMovieFromList(int index) async {
+    var brightness = MediaQuery.of(context).platformBrightness;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Remove the movie from the favorite list and from the watched list and rerender the list
+    setState(() {
+      Repo.future.removeAt(index);
+      prefs.setString(Repo.futureKey, json.encode(Repo.future));
+    });
+
+    showSimpleNotification(
+      Text("Movie succesfully deleted."),
+      background: brightness == Brightness.dark
+                        ? Colors.tealAccent
+                        : Colors.deepPurpleAccent,
     );
   }
 
