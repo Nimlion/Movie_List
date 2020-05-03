@@ -313,7 +313,7 @@ class MovieState extends State<MovieList> {
                             TextSpan(text: 'You have watched '),
                             TextSpan(
                                 text:
-                                    Movie.retrieveFavorites().length.toString(),
+                                    Repo.watched.length.toString(),
                                 style:
                                     TextStyle(color: Colors.deepOrangeAccent)),
                             TextSpan(text: ' movie'),
@@ -331,7 +331,7 @@ class MovieState extends State<MovieList> {
                             TextSpan(text: 'You have watched '),
                             TextSpan(
                                 text:
-                                    Movie.retrieveFavorites().length.toString(),
+                                    Repo.watched.length.toString(),
                                 style:
                                     TextStyle(color: Colors.deepOrangeAccent)),
                             TextSpan(text: ' movies'),
@@ -389,7 +389,7 @@ class MovieState extends State<MovieList> {
                 color: Colors.deepOrange,
               ),
               title: RichText(
-                text: Movie.retrieveGems(Repo.watched).length == 1
+                text: Movie.retrieveGems().length == 1
                     ? TextSpan(
                         style: TextStyle(
                           fontSize: Repo.currentFont + 2,
@@ -402,7 +402,7 @@ class MovieState extends State<MovieList> {
                         children: <TextSpan>[
                             TextSpan(text: 'You have '),
                             TextSpan(
-                                text: Movie.retrieveGems(Repo.watched)
+                                text: Movie.retrieveGems()
                                     .length
                                     .toString(),
                                 style:
@@ -421,7 +421,7 @@ class MovieState extends State<MovieList> {
                         children: <TextSpan>[
                             TextSpan(text: 'You have '),
                             TextSpan(
-                                text: Movie.retrieveGems(Repo.watched)
+                                text: Movie.retrieveGems()
                                     .length
                                     .toString(),
                                 style:
@@ -449,7 +449,6 @@ class MovieState extends State<MovieList> {
                         children: <TextSpan>[
                           TextSpan(text: 'You haven\'t given any rating yet')
                         ],
-                        // children: TextSpan(text: 'You haven\'t given any rating yet'),
                       )
                     : TextSpan(
                         style: TextStyle(

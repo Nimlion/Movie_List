@@ -20,7 +20,7 @@ class FavoriteScreen extends StatefulWidget {
 
 class _FavoriteState extends State<FavoriteScreen> {
   List<Movie> favoritesList =
-      Movie.retrieveGems(Repo.watched) + Movie.retrieveFavorites();
+      Movie.retrieveGems() + Movie.retrieveFavorites();
 
   // Create the favorite screen
   @override

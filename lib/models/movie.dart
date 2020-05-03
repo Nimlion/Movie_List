@@ -153,8 +153,8 @@ class Movie {
   }
 
   // Retrieve all movies with the gem status of a given list
-  static List<Movie> retrieveGems(List<Movie> list) {
-    return list.where((movie) => movie.getStatus() == MovieStatus.gem).toList();
+  static List<Movie> retrieveGems() {
+    return Repo.watched.where((movie) => movie.getStatus() == MovieStatus.gem).toList();
   }
 
   // Retrieve all favorite movies from the watched list
