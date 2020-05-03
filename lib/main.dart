@@ -35,10 +35,10 @@ class MovieListApp extends StatelessWidget {
                 brightness: Brightness.light,
                 fontFamily: 'Alexandria'),
             darkTheme: ThemeData(
-              primarySwatch: Colors.deepOrange,
-              primaryColor: Colors.black,
-              brightness: Brightness.dark,
-            ),
+                primarySwatch: Colors.deepOrange,
+                primaryColor: Colors.black,
+                brightness: Brightness.dark,
+                fontFamily: 'Alexandria'),
             home: DefaultTabController(length: 3, child: new MovieList())));
   }
 }
@@ -79,18 +79,6 @@ class MovieState extends State<MovieList> {
             .decode(prefs.getString(Repo.futureKey))
             .forEach((map) => Repo.future.add(Movie.fromJson(map)));
       }
-
-      // Print all watched movies
-      // print("saved: ");
-      // for (Movie film in Repo.watched) {
-      //   print("titel: " +
-      //       film.getTitle() +
-      //       " datum: " +
-      //       film.getDate().toString() +
-      //       " status: " +
-      //       film.getStatus().toString());
-      // }
-      // print("movies: " + Repo.future.toString());
 
       // Sort the saved list alphabetically
       Movie.sortListByEarliest(Repo.future);
@@ -146,7 +134,6 @@ class MovieState extends State<MovieList> {
                 "Fontsize",
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                    fontFamily: 'Raleway',
                     fontSize: Repo.currentFont + 6,
                     fontWeight: FontWeight.bold,
                     color: brightness == Brightness.dark
@@ -164,7 +151,7 @@ class MovieState extends State<MovieList> {
               title: Text(
                 'Grandma Fontsize',
                 style: TextStyle(
-                    fontSize: Repo.currentFont,
+                    fontSize: Repo.currentFont + 2,
                     color: Repo.currentFont == Repo.largerFont
                         ? Colors.deepOrange
                         : brightness == Brightness.dark
@@ -188,7 +175,7 @@ class MovieState extends State<MovieList> {
               title: Text(
                 'Fat Fontsize',
                 style: TextStyle(
-                    fontSize: Repo.currentFont,
+                    fontSize: Repo.currentFont + 2,
                     color: Repo.currentFont == Repo.largeFont
                         ? Colors.deepOrange
                         : brightness == Brightness.dark
@@ -212,7 +199,7 @@ class MovieState extends State<MovieList> {
               title: Text(
                 'Boring Fontsize',
                 style: TextStyle(
-                    fontSize: Repo.currentFont,
+                    fontSize: Repo.currentFont + 2,
                     color: Repo.currentFont == Repo.normalFont
                         ? Colors.deepOrange
                         : brightness == Brightness.dark
@@ -236,7 +223,7 @@ class MovieState extends State<MovieList> {
               title: Text(
                 'Asian Fontsize',
                 style: TextStyle(
-                    fontSize: Repo.currentFont,
+                    fontSize: Repo.currentFont + 2,
                     color: Repo.currentFont == Repo.smallFont
                         ? Colors.deepOrange
                         : brightness == Brightness.dark
@@ -256,7 +243,6 @@ class MovieState extends State<MovieList> {
                 "Stats",
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                    fontFamily: 'Raleway',
                     fontSize: Repo.currentFont + 6,
                     fontWeight: FontWeight.bold,
                     color: brightness == Brightness.dark
@@ -269,20 +255,42 @@ class MovieState extends State<MovieList> {
                 Icons.access_time,
                 color: Colors.deepOrange,
               ),
-              title: Text(
-                Repo.future.length == 1
-                    ? 'Waiting to watch ' +
-                        Repo.future.length.toString() +
-                        ' movie'
-                    : 'Waiting to watch ' +
-                        Repo.future.length.toString() +
-                        ' movies',
-                style: TextStyle(
-                    fontSize: Repo.currentFont + 2,
-                    color: brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black,
-                    fontWeight: FontWeight.bold),
+              title: RichText(
+                text: Repo.future.length == 1
+                    ? TextSpan(
+                        style: TextStyle(
+                          fontSize: Repo.currentFont + 2,
+                          color: brightness == Brightness.dark
+                              ? Colors.white
+                              : Colors.black,
+                          fontFamily: 'Alexandria',
+                          fontWeight: FontWeight.bold,
+                        ),
+                        children: <TextSpan>[
+                            TextSpan(text: 'Waiting to watch '),
+                            TextSpan(
+                                text: Repo.future.length.toString(),
+                                style:
+                                    TextStyle(color: Colors.deepOrangeAccent)),
+                            TextSpan(text: ' movie'),
+                          ])
+                    : TextSpan(
+                        style: TextStyle(
+                          fontSize: Repo.currentFont + 2,
+                          color: brightness == Brightness.dark
+                              ? Colors.white
+                              : Colors.black,
+                          fontFamily: 'Alexandria',
+                          fontWeight: FontWeight.bold,
+                        ),
+                        children: <TextSpan>[
+                            TextSpan(text: 'Waiting to watch '),
+                            TextSpan(
+                                text: Repo.future.length.toString(),
+                                style:
+                                    TextStyle(color: Colors.deepOrangeAccent)),
+                            TextSpan(text: ' movies'),
+                          ]),
               ),
             ),
             ListTile(
@@ -290,16 +298,44 @@ class MovieState extends State<MovieList> {
                 Icons.movie_filter,
                 color: Colors.deepOrange,
               ),
-              title: Text(
-                Repo.watched.length == 1
-                    ? Repo.watched.length.toString() + ' movie watched'
-                    : Repo.watched.length.toString() + ' movies watched',
-                style: TextStyle(
-                    fontSize: Repo.currentFont + 2,
-                    color: brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black,
-                    fontWeight: FontWeight.bold),
+              title: RichText(
+                text: Repo.watched.length == 1
+                    ? TextSpan(
+                        style: TextStyle(
+                          fontSize: Repo.currentFont + 2,
+                          color: brightness == Brightness.dark
+                              ? Colors.white
+                              : Colors.black,
+                          fontFamily: 'Alexandria',
+                          fontWeight: FontWeight.bold,
+                        ),
+                        children: <TextSpan>[
+                            TextSpan(text: 'You have watched '),
+                            TextSpan(
+                                text:
+                                    Movie.retrieveFavorites().length.toString(),
+                                style:
+                                    TextStyle(color: Colors.deepOrangeAccent)),
+                            TextSpan(text: ' movie'),
+                          ])
+                    : TextSpan(
+                        style: TextStyle(
+                          fontSize: Repo.currentFont + 2,
+                          color: brightness == Brightness.dark
+                              ? Colors.white
+                              : Colors.black,
+                          fontFamily: 'Alexandria',
+                          fontWeight: FontWeight.bold,
+                        ),
+                        children: <TextSpan>[
+                            TextSpan(text: 'You have watched '),
+                            TextSpan(
+                                text:
+                                    Movie.retrieveFavorites().length.toString(),
+                                style:
+                                    TextStyle(color: Colors.deepOrangeAccent)),
+                            TextSpan(text: ' movies'),
+                          ]),
               ),
             ),
             ListTile(
@@ -307,20 +343,44 @@ class MovieState extends State<MovieList> {
                 Icons.favorite,
                 color: Colors.deepOrange,
               ),
-              title: Text(
-                Movie.retrieveFavorites().length == 1
-                    ? 'You have ' +
-                        Movie.retrieveGems(Repo.watched).length.toString() +
-                        ' favorite'
-                    : 'You have ' +
-                        Movie.retrieveGems(Repo.watched).length.toString() +
-                        ' favorites',
-                style: TextStyle(
-                    fontSize: Repo.currentFont + 2,
-                    color: brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black,
-                    fontWeight: FontWeight.bold),
+              title: RichText(
+                text: Movie.retrieveFavorites().length == 1
+                    ? TextSpan(
+                        style: TextStyle(
+                          fontSize: Repo.currentFont + 2,
+                          color: brightness == Brightness.dark
+                              ? Colors.white
+                              : Colors.black,
+                          fontFamily: 'Alexandria',
+                          fontWeight: FontWeight.bold,
+                        ),
+                        children: <TextSpan>[
+                            TextSpan(text: 'You have '),
+                            TextSpan(
+                                text:
+                                    Movie.retrieveFavorites().length.toString(),
+                                style:
+                                    TextStyle(color: Colors.deepOrangeAccent)),
+                            TextSpan(text: ' favorite'),
+                          ])
+                    : TextSpan(
+                        style: TextStyle(
+                          fontSize: Repo.currentFont + 2,
+                          color: brightness == Brightness.dark
+                              ? Colors.white
+                              : Colors.black,
+                          fontFamily: 'Alexandria',
+                          fontWeight: FontWeight.bold,
+                        ),
+                        children: <TextSpan>[
+                            TextSpan(text: 'You have '),
+                            TextSpan(
+                                text:
+                                    Movie.retrieveFavorites().length.toString(),
+                                style:
+                                    TextStyle(color: Colors.deepOrangeAccent)),
+                            TextSpan(text: ' favorites'),
+                          ]),
               ),
             ),
             ListTile(
@@ -328,20 +388,46 @@ class MovieState extends State<MovieList> {
                 Icons.local_activity,
                 color: Colors.deepOrange,
               ),
-              title: Text(
-                Movie.retrieveGems(Repo.watched).length == 1
-                    ? 'You have ' +
-                        Movie.retrieveGems(Repo.watched).length.toString() +
-                        ' movie gem'
-                    : 'You have ' +
-                        Movie.retrieveGems(Repo.watched).length.toString() +
-                        ' movie gems',
-                style: TextStyle(
-                    fontSize: Repo.currentFont + 2,
-                    color: brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black,
-                    fontWeight: FontWeight.bold),
+              title: RichText(
+                text: Movie.retrieveGems(Repo.watched).length == 1
+                    ? TextSpan(
+                        style: TextStyle(
+                          fontSize: Repo.currentFont + 2,
+                          color: brightness == Brightness.dark
+                              ? Colors.white
+                              : Colors.black,
+                          fontFamily: 'Alexandria',
+                          fontWeight: FontWeight.bold,
+                        ),
+                        children: <TextSpan>[
+                            TextSpan(text: 'You have '),
+                            TextSpan(
+                                text: Movie.retrieveGems(Repo.watched)
+                                    .length
+                                    .toString(),
+                                style:
+                                    TextStyle(color: Colors.deepOrangeAccent)),
+                            TextSpan(text: ' movie gem'),
+                          ])
+                    : TextSpan(
+                        style: TextStyle(
+                          fontSize: Repo.currentFont + 2,
+                          color: brightness == Brightness.dark
+                              ? Colors.white
+                              : Colors.black,
+                          fontFamily: 'Alexandria',
+                          fontWeight: FontWeight.bold,
+                        ),
+                        children: <TextSpan>[
+                            TextSpan(text: 'You have '),
+                            TextSpan(
+                                text: Movie.retrieveGems(Repo.watched)
+                                    .length
+                                    .toString(),
+                                style:
+                                    TextStyle(color: Colors.deepOrangeAccent)),
+                            TextSpan(text: ' movie gems'),
+                          ]),
               ),
             ),
             ListTile(
@@ -349,17 +435,37 @@ class MovieState extends State<MovieList> {
                 Icons.grade,
                 color: Colors.deepOrange,
               ),
-              title: Text(
-                Repo.watched.length == 0
-                    ? 'You haven\'t given any rating yet'
-                    : 'Your average rating is ' +
-                        Movie.getAverageRating(Repo.watched).toString(),
-                style: TextStyle(
-                    fontSize: Repo.currentFont + 2,
-                    color: brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black,
-                    fontWeight: FontWeight.bold),
+              title: RichText(
+                text: Repo.watched.length == 0
+                    ? Text(
+                        Repo.watched.length == 0
+                            ? 'You haven\'t given any rating yet'
+                            : 'Your average rating is ' +
+                                Movie.getAverageRating(Repo.watched).toString(),
+                        style: TextStyle(
+                            fontSize: Repo.currentFont + 2,
+                            color: brightness == Brightness.dark
+                                ? Colors.white
+                                : Colors.black,
+                            fontWeight: FontWeight.bold),
+                      )
+                    : TextSpan(
+                        style: TextStyle(
+                          fontSize: Repo.currentFont + 2,
+                          color: brightness == Brightness.dark
+                              ? Colors.white
+                              : Colors.black,
+                          fontFamily: 'Alexandria',
+                          fontWeight: FontWeight.bold,
+                        ),
+                        children: <TextSpan>[
+                            TextSpan(text: 'Your average rating is a '),
+                            TextSpan(
+                                text: Movie.getAverageRating(Repo.watched)
+                                    .toString(),
+                                style:
+                                    TextStyle(color: Colors.deepOrangeAccent)),
+                          ]),
               ),
             ),
           ],
