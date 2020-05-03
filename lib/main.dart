@@ -28,7 +28,7 @@ class MovieListApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return OverlaySupport(
         child: MaterialApp(
-            title: 'My Movie List',
+            title: 'Movie Gems',
             theme: ThemeData(
                 primarySwatch: Colors.deepOrange,
                 primaryColor: Colors.deepPurple,
@@ -136,14 +136,15 @@ class MovieState extends State<MovieList> {
               ),
               decoration: BoxDecoration(
                 color: brightness == Brightness.dark
-                    ? Colors.teal
+                    ? Colors.black
                     : Colors.deepPurple,
               ),
             ),
             Padding(
-              padding: EdgeInsets.fromLTRB(15, 10, 0, 10),
+              padding: EdgeInsets.fromLTRB(0, 15, 0, 15),
               child: Text(
-                "Fontsize:",
+                "Fontsize",
+                textAlign: TextAlign.center,
                 style: TextStyle(
                     fontSize: Repo.currentFont + 6,
                     fontWeight: FontWeight.bold,
@@ -202,7 +203,7 @@ class MovieState extends State<MovieList> {
             ),
             ListTile(
               leading: Icon(
-                Icons.offline_bolt,
+                Icons.highlight_off,
                 color: brightness == Brightness.dark
                     ? Colors.white
                     : Colors.deepOrange,
@@ -247,6 +248,115 @@ class MovieState extends State<MovieList> {
                   Repo.currentFont = Repo.smallFont;
                 });
               },
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(0, 15, 0, 15),
+              child: Text(
+                "Stats",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: Repo.currentFont + 6,
+                    fontWeight: FontWeight.bold,
+                    color: brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.deepPurple),
+              ),
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.access_time,
+                color: Colors.deepOrange,
+              ),
+              title: Text(
+                Repo.future.length == 1
+                    ? 'Waiting to watch ' +
+                        Repo.future.length.toString() +
+                        ' movie'
+                    : 'Waiting to watch ' +
+                        Repo.future.length.toString() +
+                        ' movies',
+                style: TextStyle(
+                    fontSize: Repo.currentFont + 2,
+                    color: brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.movie_filter,
+                color: Colors.deepOrange,
+              ),
+              title: Text(
+                Repo.watched.length == 1
+                    ? Repo.watched.length.toString() + ' movie watched'
+                    : Repo.watched.length.toString() + ' movies watched',
+                style: TextStyle(
+                    fontSize: Repo.currentFont + 2,
+                    color: brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.favorite,
+                color: Colors.deepOrange,
+              ),
+              title: Text(
+                Movie.retrieveFavorites().length == 1
+                    ? Movie.retrieveFavorites().length.toString() +
+                        ' favorite watched'
+                    : Movie.retrieveFavorites().length.toString() +
+                        ' favorites watched',
+                style: TextStyle(
+                    fontSize: Repo.currentFont + 2,
+                    color: brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.local_activity,
+                color: Colors.deepOrange,
+              ),
+              title: Text(
+                Movie.retrieveGems(Repo.watched).length == 1
+                    ? 'You have ' +
+                        Movie.retrieveGems(Repo.watched).length.toString() +
+                        ' movie gem'
+                    : 'You have ' +
+                        Movie.retrieveGems(Repo.watched).length.toString() +
+                        ' movie gems',
+                style: TextStyle(
+                    fontSize: Repo.currentFont + 2,
+                    color: brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.grade,
+                color: Colors.deepOrange,
+              ),
+              title: Text(
+                Repo.watched.length == 0
+                    ? 'You haven\'t given any rating yet'
+                    : 'Your average rating is ' +
+                        Movie.getAverageRating(Repo.watched).toString(),
+                style: TextStyle(
+                    fontSize: Repo.currentFont + 2,
+                    color: brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black,
+                    fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         ),
@@ -374,12 +484,13 @@ class MovieState extends State<MovieList> {
             childButtons: <UnicornButton>[
               UnicornButton(
                   currentButton: FloatingActionButton(
-                heroTag: 'homeGemFAB',
+                heroTag: 'homeRatingFAB',
                 mini: true,
-                child: Icon(Icons.dns),
+                child: Icon(Icons.equalizer),
                 onPressed: () {
-                  print("Movie.retrieveGems(Repo.watched).length");
-                  print(Movie.retrieveGems(Repo.watched).length);
+                  setState(() {
+                    Movie.sortListByHighestRating(Repo.watched);
+                  });
                 },
               )),
               UnicornButton(
