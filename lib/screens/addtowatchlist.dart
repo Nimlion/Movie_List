@@ -98,6 +98,7 @@ class _AddWatchListState extends State<AddWatchlistScreen> {
 
   // Add a new movie to the list of movies
   void _addMovie(String movieTitle, String movieDate) async {
+    var brightness = MediaQuery.of(context).platformBrightness;
     DateTime movieDateTime;
     try {
       movieDate = movieDate.replaceAll('-', '');
@@ -126,6 +127,15 @@ class _AddWatchListState extends State<AddWatchlistScreen> {
             Movie toAddMovie = new Movie(movieDateTime, movieTitle, MovieStatus.normal, 5.5);
             Repo.future.add(toAddMovie);
             prefs.setString(Repo.futureKey, jsonEncode(Repo.future));
+
+            // Display a notification to the user that the movie has been added
+            showSimpleNotification(
+              Text("Movie succesfully added."),
+              background: brightness == Brightness.dark
+                  ? Colors.tealAccent
+                  : Colors.deepPurpleAccent,
+            );
+
             // Sort the list again
             Movie.sortListByLatest(Repo.future);
           } catch (identifier) {

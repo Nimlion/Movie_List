@@ -181,6 +181,7 @@ class _EditMovieState extends State<EditScreen> {
 
   // Edit the title of the movie from the list of movies
   void _editMovie(Movie editedMovie) async {
+    var brightness = MediaQuery.of(context).platformBrightness;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     // The unedited movie
     Movie original = Repo.watched.elementAt(watchedIndex);
@@ -218,7 +219,9 @@ class _EditMovieState extends State<EditScreen> {
 
           showSimpleNotification(
             Text("Movie succesfully edited."),
-            background: Colors.deepPurpleAccent,
+            background: brightness == Brightness.dark
+                        ? Colors.tealAccent
+                        : Colors.deepPurpleAccent,
           );
         });
       }

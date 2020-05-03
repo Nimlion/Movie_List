@@ -261,6 +261,7 @@ class MovieState extends State<MovieList> {
 
   // Remove a movie from the list of watched movies
   void _removeMovieFromList(int index) async {
+    var brightness = MediaQuery.of(context).platformBrightness;
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     // Remove the movie from the favorite list and from the watched list and rerender the list
@@ -271,7 +272,10 @@ class MovieState extends State<MovieList> {
 
     showSimpleNotification(
       Text("Movie succesfully deleted."),
-      background: Colors.deepPurpleAccent,
+      background: brightness == Brightness.dark
+                        ? Colors.tealAccent
+                        : Colors.deepPurpleAccent,
+      
     );
   }
 
@@ -331,7 +335,7 @@ class MovieState extends State<MovieList> {
               Padding(
                   padding: EdgeInsets.all(10),
                   child: Text(
-                      "U currently 0 movies in this list add them down below.",
+                      "U currently have 0 movies in this list add them down below.",
                       textAlign: TextAlign.center,
                       style: new TextStyle(
                           fontSize: Repo.currentFont + 5.0,

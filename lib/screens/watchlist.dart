@@ -177,6 +177,7 @@ class _WatchlistState extends State<WatchlistScreen> {
 
   // Send the movie to the watched list and remove from the watchlater list
   void sendToWatched(int index, Movie newMovie) async {
+    var brightness = MediaQuery.of(context).platformBrightness;
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     setState(() {
@@ -194,7 +195,9 @@ class _WatchlistState extends State<WatchlistScreen> {
 
         showSimpleNotification(
           Text("Movie succesfully send to watched."),
-          background: Colors.deepPurpleAccent,
+          background: brightness == Brightness.dark
+                        ? Colors.tealAccent
+                        : Colors.deepPurpleAccent,
         );
       } catch (e) {}
     });

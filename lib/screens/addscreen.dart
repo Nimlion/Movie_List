@@ -216,6 +216,7 @@ class _AddMovieState extends State<AddMovieScreen> {
   // Add a new movie to the list of movies
   void _addMovie(String movieTitle, String movieDate, MovieStatus status,
       double rating, List<Movie> list) async {
+    var brightness = MediaQuery.of(context).platformBrightness;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     DateTime movieDateTime;
 
@@ -254,7 +255,9 @@ class _AddMovieState extends State<AddMovieScreen> {
 
             showSimpleNotification(
               Text("Movie succesfully added."),
-              background: Colors.deepPurpleAccent,
+              background: brightness == Brightness.dark
+                        ? Colors.tealAccent
+                        : Colors.deepPurpleAccent,
             );
           } catch (identifier) {
             showSimpleNotification(

@@ -134,6 +134,7 @@ class MovieState extends State<MovieList> {
   }
 
   void _addMovie(String newMovie) async {
+    var brightness = MediaQuery.of(context).platformBrightness;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     // Only add the task if the user actually entered something
     // and if the movie doesn't already exist
@@ -141,7 +142,9 @@ class MovieState extends State<MovieList> {
       if (movieDoesExist(newMovie.toLowerCase()) == true) {
         showSimpleNotification(
           Text("This movie already exists."),
-          background: Colors.purple,
+          background: brightness == Brightness.dark
+                        ? Colors.tealAccent
+                        : Colors.deepPurpleAccent,
         );
       } else {
         // Putting our code inside "setState" tells the app that our state has changed, and
@@ -156,7 +159,9 @@ class MovieState extends State<MovieList> {
     } else {
       showSimpleNotification(
         Text("Please enter a correct name."),
-        background: Colors.purple,
+        background: brightness == Brightness.dark
+                        ? Colors.tealAccent
+                        : Colors.deepPurpleAccent,
       );
     }
   }
